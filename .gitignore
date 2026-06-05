@@ -1,0 +1,14 @@
+# Visualstudio関連
+.vs/
+bin/
+obj/
+
+# ログ関連
+*.log
+
+# Rider
+.idea/
+
+# User files
+*.user
+*.suo
