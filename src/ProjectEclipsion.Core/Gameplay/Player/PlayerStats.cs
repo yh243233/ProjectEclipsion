@@ -44,17 +44,18 @@ public sealed class PlayerStats
 
     public int MoveSpeed { get; }
 
-    // 次の段階で使用する為正解かはわからないが恐らくステータスの更新はこの辺りで行う事になる。
+    // RestoreHealthで使用。ここのClampは値を最小値と最大値の範囲内に収めるためのもの。
     public void SetHealth(int value)
     {
         Health = Clamp(value, 0, MaxHealth);
     }
 
+    // RestoreShieldで使用。ここのClampは値を最小値と最大値の範囲内に収めるためのもの。
     public void SetShield(int value)
     {
         Shield = Clamp(value, 0, MaxShield);
     }
-
+    // Healthが最低値を切ってないかの確認と、最大値を超えてないかの確認をしている。
     public void RestoreHealth(int amount)
     {
         if (amount < 0)
@@ -65,6 +66,7 @@ public sealed class PlayerStats
         SetHealth(Health + amount);
     }
 
+    // Shieldが最低値を切ってないかの確認と、最大値を超えてないかの確認をしている。
     public void RestoreShield(int amount)
     {
         if (amount < 0)
