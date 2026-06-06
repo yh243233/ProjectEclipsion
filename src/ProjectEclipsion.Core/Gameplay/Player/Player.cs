@@ -18,6 +18,7 @@ public sealed class Player
 
     public int Y { get; private set; }
 
+
     public void Move(int directionX, int directionY)
     {
         X += directionX * Stats.MoveSpeed;

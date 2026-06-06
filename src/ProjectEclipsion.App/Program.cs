@@ -26,27 +26,65 @@ using ProjectEclipsion.Core;
 // 基本的な流れはステップ1－1と同じ。
 // 今回はステータス部分に更新がかかり、最大HP、現在のHP、最大シールド、現在のシールド、移動速度を管理するPlayerStatsクラスが追加されている。
 // 具体的にはゲームステータスのインスタンスを生成するタイミングでプレイヤークラスのインスタンスも生成して管理する事となっている。
+
 var gameState = new GameState();
 var renderer = new ConsoleRenderer();
 var gameLoop = new GameLoop(gameState, renderer);
 var keyboardInput = new KeyboardInput();
 
+// 2026-06-06
+// ステップ1-3
+
+// このコードの流れは以下の通りになる
+// while (true) で無限ループ
+
+// ゲームを続ける限り同じ処理を繰り返します。
+// break が実行されるとループを抜けます。
+// if (!Console.IsInputRedirected && !Console.IsOutputRedirected) { Console.Clear(); }
+
+// 入出力がリダイレクトされていない通常のコンソール環境なら、画面をクリアします。
+// これにより毎フレーム、古い表示を消して新しい画面が見やすくなります。
+// gameLoop.RunOnce();
+
+// 1フレーム分のゲーム更新と描画処理を実行します。
+// Console.WriteLine();
+
+// 空行を入れて見た目を整えます。
+// Console.WriteLine("WASDで移動 / QまたはEscで終了");
+
+// 操作方法の説明を画面に表示します。
+// var direction = keyboardInput.ReadDirection();
+
+// キーボードから入力を受け取り、移動方向や終了要求を取得します。
+// if (direction.ShouldExit) { break; }
+
+// Q か Esc が押されたらループを抜けてゲームを終了します。
+// gameState.MovePlayer(direction.DirectionX, direction.DirectionY);
+
+// 入力に応じてプレイヤーを移動させます。
+// まとめ
+// ループごとに画面を更新し、
+// キー入力を受け取って、
+// 終了命令なら抜け、
+// それ以外ならプレイヤーを移動する。
+// つまり「描画→操作入力→終了判定→移動」を繰り返す、ゲームのメインループです。
+
 while (true)
 {
-    if (!Console.IsInputRedirected && !Console.IsOutputRedirected)
-    {
-        Console.Clear();
-    }
+  if (!Console.IsInputRedirected && !Console.IsOutputRedirected)
+  {
+    Console.Clear();
+  }
 
-    gameLoop.RunOnce();
-    Console.WriteLine();
-    Console.WriteLine("WASDで移動 / QまたはEscで終了");
+  gameLoop.RunOnce();
+  Console.WriteLine();
+  Console.WriteLine("WASDで移動 / QまたはEscで終了");
 
-    var direction = keyboardInput.ReadDirection();
-    if (direction.ShouldExit)
-    {
-        break;
-    }
+  var direction = keyboardInput.ReadDirection();
+  if (direction.ShouldExit)
+  {
+    break;
+  }
 
-    gameState.MovePlayer(direction.DirectionX, direction.DirectionY);
+  gameState.MovePlayer(direction.DirectionX, direction.DirectionY);
 }
