@@ -78,12 +78,17 @@ while (true)
 
   gameLoop.RunOnce();
   Console.WriteLine();
-  Console.WriteLine("WASDで移動 / QまたはEscで終了");
+  Console.WriteLine("WASDで移動 / Tで10ダメージ / QまたはEscで終了");
 
   var direction = keyboardInput.ReadDirection();
   if (direction.ShouldExit)
   {
     break;
+  }
+
+  if (direction.ShouldDamagePlayer)
+  {
+    gameState.DamagePlayer(10);
   }
 
   gameState.MovePlayer(direction.DirectionX, direction.DirectionY);

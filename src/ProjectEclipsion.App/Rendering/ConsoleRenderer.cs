@@ -14,5 +14,6 @@ public sealed class ConsoleRenderer : IRenderer
         Console.WriteLine($"Player座標: X={gameState.Player.X}, Y={gameState.Player.Y}");
         Console.WriteLine($"HP: {gameState.Player.Stats.Health}/{gameState.Player.Stats.MaxHealth}");
         Console.WriteLine($"Shield: {gameState.Player.Stats.Shield}/{gameState.Player.Stats.MaxShield}");
+        Console.WriteLine($"IsDead: {gameState.Player.IsDead}");
     }
 }

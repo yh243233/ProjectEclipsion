@@ -129,4 +129,49 @@ public sealed class PlayerTests
 
         Assert.Equal(50, player.Stats.Shield);
     }
+
+    [Fact]
+    public void TakeDamage_Shieldが先に減る()
+    {
+        var player = new Player(new PlayerStats(maxHealth: 100, maxShield: 50, moveSpeed: 1));
+
+        player.TakeDamage(10);
+
+        Assert.Equal(100, player.Stats.Health);
+        Assert.Equal(40, player.Stats.Shield);
+        Assert.False(player.IsDead);
+    }
+
+    [Fact]
+    public void TakeDamage_Shield超過分がHPに入る()
+    {
+        var player = new Player(new PlayerStats(maxHealth: 100, maxShield: 50, moveSpeed: 1));
+
+        player.TakeDamage(70);
+
+        Assert.Equal(80, player.Stats.Health);
+        Assert.Equal(0, player.Stats.Shield);
+        Assert.False(player.IsDead);
+    }
+
+    [Fact]
+    public void TakeDamage_HPが0未満にならない()
+    {
+        var player = new Player(new PlayerStats(maxHealth: 100, maxShield: 50, moveSpeed: 1));
+
+        player.TakeDamage(200);
+
+        Assert.Equal(0, player.Stats.Health);
+        Assert.Equal(0, player.Stats.Shield);
+    }
+
+    [Fact]
+    public void TakeDamage_HPが0になるとIsDeadがtrueになる()
+    {
+        var player = new Player(new PlayerStats(maxHealth: 100, maxShield: 50, moveSpeed: 1));
+
+        player.TakeDamage(150);
+
+        Assert.True(player.IsDead);
+    }
 }
