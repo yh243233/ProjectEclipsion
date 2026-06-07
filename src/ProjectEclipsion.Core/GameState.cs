@@ -25,5 +25,9 @@ public sealed class GameState
     {
         Player.Move(directionX, directionY);
     }
-}
 
+    public void DamagePlayer(int amount)
+    {
+        Player.TakeDamage(amount);
+    }
+}

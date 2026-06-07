@@ -6,7 +6,7 @@ public sealed class KeyboardInput
 {
     // ここの箇所はReadDirectionは戻り値の型ではなくメソッド名である。
     // int DirectionX, int DirectionY, bool ShouldExitの箇所のintなどは引数の型宣言ではなく返り値の型宣言である。
-    public (int DirectionX, int DirectionY, bool ShouldExit) ReadDirection()
+    public (int DirectionX, int DirectionY, bool ShouldExit, bool ShouldDamagePlayer) ReadDirection()
     {
         // Console.IsInputRedirectedはコンソールの入力がリダイレクトされているかどうかを示すプロパティで、trueの場合はリダイレクトされていることを意味する。
         // true = コンソール（パイプやファイル）からの入力 ← リダイレクトされている。
@@ -26,7 +26,7 @@ public sealed class KeyboardInput
             // input < 0 の場合は、入力が終わった／ないと判断して ShouldExit = true を返します。
             // そうでなければ、その文字を ToDirection に渡して移動方向や終了フラグを返します。
             return input < 0
-                ? (0, 0, true)
+                ? (0, 0, true, false)
             // ToDirectionは下の箇所で定義されているメソッドで、char型の引数を受け取り、移動方向と終了フラグを返すものです。
                 : ToDirection((char)input);
             // つまりまとめると、リダイレクトされた入力がある場合は、キーボードからの入力を待たずに、リダイレクトされた入力を処理してゲームを終了するか、移動方向を決定することになる。
@@ -73,28 +73,30 @@ public sealed class KeyboardInput
             // x=0, y=0, cancel=true
             // _ => (0, 0, false)
 
-            ConsoleKey.W => (0, -1, false),
-            ConsoleKey.S => (0, 1, false),
-            ConsoleKey.A => (-1, 0, false),
-            ConsoleKey.D => (1, 0, false),
-            ConsoleKey.Q => (0, 0, true),
-            ConsoleKey.Escape => (0, 0, true),
+            ConsoleKey.W => (0, -1, false, false),
+            ConsoleKey.S => (0, 1, false, false),
+            ConsoleKey.A => (-1, 0, false, false),
+            ConsoleKey.D => (1, 0, false, false),
+            ConsoleKey.T => (0, 0, false, true),
+            ConsoleKey.Q => (0, 0, true, false),
+            ConsoleKey.Escape => (0, 0, true, false),
             // ここはそれ以外のキーが押された場合のデフォルトの動作を定義している。今回は移動なし、終了なしの状態を返す。
-            _ => (0, 0, false),
+            _ => (0, 0, false, false),
         };
     }
 
     // こっちはデバッグ用
-    private static (int DirectionX, int DirectionY, bool ShouldExit) ToDirection(char input)
+    private static (int DirectionX, int DirectionY, bool ShouldExit, bool ShouldDamagePlayer) ToDirection(char input)
     {
         return char.ToUpperInvariant(input) switch
         {
-            'W' => (0, -1, false),
-            'S' => (0, 1, false),
-            'A' => (-1, 0, false),
-            'D' => (1, 0, false),
-            'Q' => (0, 0, true),
-            _ => (0, 0, false),
+            'W' => (0, -1, false, false),
+            'S' => (0, 1, false, false),
+            'A' => (-1, 0, false, false),
+            'D' => (1, 0, false, false),
+            'T' => (0, 0, false, true),
+            'Q' => (0, 0, true, false),
+            _ => (0, 0, false, false),
         };
     }
 }

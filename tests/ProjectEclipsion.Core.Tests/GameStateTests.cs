@@ -44,4 +44,16 @@ public sealed class GameStateTests
         Assert.Equal(1, gameState.Player.X);
         Assert.Equal(-1, gameState.Player.Y);
     }
+
+    [Fact]
+    public void DamagePlayer_GameState経由でPlayerにダメージを与える()
+    {
+        var gameState = new GameState();
+
+        gameState.DamagePlayer(10);
+
+        Assert.Equal(100, gameState.Player.Stats.Health);
+        Assert.Equal(40, gameState.Player.Stats.Shield);
+        Assert.False(gameState.Player.IsDead);
+    }
 }

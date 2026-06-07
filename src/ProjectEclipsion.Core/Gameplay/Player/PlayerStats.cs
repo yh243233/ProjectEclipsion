@@ -44,6 +44,8 @@ public sealed class PlayerStats
 
     public int MoveSpeed { get; }
 
+    public bool IsDead => Health == 0;
+
     // RestoreHealthで使用。ここのClampは値を最小値と最大値の範囲内に収めるためのもの。
     public void SetHealth(int value)
     {
@@ -75,6 +77,28 @@ public sealed class PlayerStats
         }
 
         SetShield(Shield + amount);
+    }
+
+    public void TakeDamage(int amount)
+    {
+        if (amount < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(amount), "ダメージ量は0以上である必要があります。");
+        }
+
+        var remainingDamage = amount;
+
+        if (Shield > 0)
+        {
+            var shieldDamage = Math.Min(Shield, remainingDamage);
+            SetShield(Shield - shieldDamage);
+            remainingDamage -= shieldDamage;
+        }
+
+        if (remainingDamage > 0)
+        {
+            SetHealth(Health - remainingDamage);
+        }
     }
 
     // 今回Clampは手動で準備している。
