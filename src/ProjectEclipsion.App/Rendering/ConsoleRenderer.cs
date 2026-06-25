@@ -15,5 +15,15 @@ public sealed class ConsoleRenderer : IRenderer
         Console.WriteLine($"HP: {gameState.Player.Stats.Health}/{gameState.Player.Stats.MaxHealth}");
         Console.WriteLine($"Shield: {gameState.Player.Stats.Shield}/{gameState.Player.Stats.MaxShield}");
         Console.WriteLine($"IsDead: {gameState.Player.IsDead}");
+
+        foreach (var bullet in gameState.Bullets)
+        {
+            Console.WriteLine($"Bullet: ({bullet.X}, {bullet.Y})");
+        }
+
+        foreach (var enemy in gameState.Enemies)
+        {
+            Console.WriteLine($"Enemy: ({enemy.X}, {enemy.Y}) HP: {enemy.Health} State: {enemy.AiState}");
+        }
     }
 }
