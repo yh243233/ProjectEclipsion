@@ -49,12 +49,19 @@ public sealed class Player
 
     public void TakeDamage(int amount)
     {
+        // amountの内容が0以下の場合例をスローする。
         if (amount < 0)
         {
+            // ArgumentOutOfRangeException
+            // https://learn.microsoft.com/ja-jp/dotnet/api/system.argumentoutofrangeexception?view=net-10.0
+            // 引数の値が、呼び出されたメソッドで定義されている値の許容範囲外にある場合にスローされる例外
             throw new ArgumentOutOfRangeException(nameof(amount), "ダメージ量は0以上である必要があります。");
         }
 
         var remainingDamage = amount;
+
+
+
         if (Stats.Shield > 0)
         {
             var shieldDamage = Math.Min(Stats.Shield, remainingDamage);

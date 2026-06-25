@@ -79,6 +79,9 @@ public sealed class PlayerStats
         SetShield(Shield + amount);
     }
 
+    // amountの内容が0以下の場合例をスローする。
+    // ArgumentOutOfRangeException
+    // https://learn.microsoft.com/ja-jp/dotnet/api/system.argumentoutofrangeexception?view=net-1
     public void TakeDamage(int amount)
     {
         if (amount < 0)
@@ -90,6 +93,7 @@ public sealed class PlayerStats
 
         if (Shield > 0)
         {
+            // C#の Math.Min メソッドは、2つの数値のうち小さい方の値を簡単に取得するためのメソッド。
             var shieldDamage = Math.Min(Shield, remainingDamage);
             SetShield(Shield - shieldDamage);
             remainingDamage -= shieldDamage;
@@ -110,6 +114,7 @@ public sealed class PlayerStats
         {
             return min;
         }
+
 
         if (value > max)
         {

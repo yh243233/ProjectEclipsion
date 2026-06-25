@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 
 namespace ProjectEclipsion.App.Input;
 
@@ -8,8 +9,9 @@ public sealed class KeyboardInput
     // int DirectionX, int DirectionY, bool ShouldExitの箇所のintなどは引数の型宣言ではなく返り値の型宣言である。
     public (int DirectionX, int DirectionY, bool ShouldExit, bool ShouldDamagePlayer) ReadDirection()
     {
-        // Console.IsInputRedirectedはコンソールの入力がリダイレクトされているかどうかを示すプロパティで、trueの場合はリダイレクトされていることを意味する。
-        // true = コンソール（パイプやファイル）からの入力 ← リダイレクトされている。
+        // ブレークポイントでのデバッグがうまくいかないので調べる。
+        // todo:Console.IsInputRedirectedはコンソールの入力がリダイレクトされているかどうかを示すプロパティで、trueの場合はリダイレクトされていることを意味する。
+        // true = コンソール（パイプやファイルなどキーボード以外からの入力） ← リダイレクトされている。
         // false = キーボードからの直接入力 ← リダイレクトされていない＝通常の状態。
         // リダイレクト = 流れを別の場所に向ける。入力元を切り替える。
         // 元々は「方向を変える」という意味です。
@@ -31,7 +33,8 @@ public sealed class KeyboardInput
                 : ToDirection((char)input);
             // つまりまとめると、リダイレクトされた入力がある場合は、キーボードからの入力を待たずに、リダイレクトされた入力を処理してゲームを終了するか、移動方向を決定することになる。
         }
-
+        // デバッグ用
+        // Console.WriteLine(Console.IsInputRedirected);
         // リダイレクトされていない場合、ユーザーがキーボードを押すのを待ちます。
         // intercept: true により、押したキーは画面に表示されません。
 
@@ -86,6 +89,9 @@ public sealed class KeyboardInput
     }
 
     // こっちはデバッグ用
+    // using System;
+    // todo:pace ProjectEclipsion.App.Input;の二つしかネームスペース宣言をしていないのになぜリターン時に
+    // char.ToUpperInvariantが使えているのかわからない。
     private static (int DirectionX, int DirectionY, bool ShouldExit, bool ShouldDamagePlayer) ToDirection(char input)
     {
         return char.ToUpperInvariant(input) switch
