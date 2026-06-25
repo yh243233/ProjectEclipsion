@@ -21,10 +21,24 @@ public sealed class ConsoleRenderer : IRenderer
         Console.WriteLine($"FireRate: {gameState.CurrentWeapon.Stats.FireRate:0.0}");
         Console.WriteLine($"ReloadTime: {gameState.CurrentWeapon.Stats.ReloadTime:0.0}");
         Console.WriteLine($"BulletSpeed: {gameState.CurrentWeapon.Stats.BulletSpeed:0.0}");
+        Console.WriteLine($"Inventory: {gameState.Inventory.Count} item(s)");
+        if (gameState.Equipment.EquippedItem is null)
+        {
+            Console.WriteLine("Equipped Item: None");
+        }
+        else
+        {
+            Console.WriteLine($"Equipped Item: {gameState.Equipment.EquippedItem.Name} / {gameState.Equipment.EquippedItem.Rarity}");
+        }
+
+        foreach (var item in gameState.DroppedItems)
+        {
+            Console.WriteLine($"Dropped Item: {item.Name} / {item.Rarity}");
+        }
 
         foreach (var bullet in gameState.Bullets)
         {
-            Console.WriteLine($"Bullet: ({bullet.X}, {bullet.Y})");
+            Console.WriteLine($"Bullet: ({bullet.X}, {bullet.Y}) Type: {bullet.Type} Damage: {bullet.Damage} Speed: {bullet.Speed}");
         }
 
         foreach (var enemy in gameState.Enemies)

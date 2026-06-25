@@ -1,6 +1,7 @@
 using ProjectEclipsion.Core.Gameplay.Player;
 using System.Collections.Generic;
 using ProjectEclipsion.Core.Gameplay.Enemies;
+using ProjectEclipsion.Core.Gameplay.Items;
 using ProjectEclipsion.Core.Gameplay.Weapons;
 
 namespace ProjectEclipsion.Core;
@@ -22,6 +23,9 @@ public sealed class GameState
         Weapons = CreateInitialWeapons();
         CurrentWeapon = Weapons[0];
         Bullets = new List<Bullet>();
+        DroppedItems = new List<Item>();
+        Inventory = new Inventory();
+        Equipment = new Equipment();
         Enemies = new List<Enemy>
         {
             new Enemy(x: 30, y: 10, maxHealth: 30, aiLevel: EnemyAiLevel.Basic),
@@ -44,6 +48,12 @@ public sealed class GameState
     public List<Bullet> Bullets { get; }
 
     public List<Enemy> Enemies { get; }
+
+    public List<Item> DroppedItems { get; }
+
+    public Inventory Inventory { get; }
+
+    public Equipment Equipment { get; }
 
     public void MovePlayer(int directionX, int directionY)
     {
@@ -76,6 +86,7 @@ public sealed class GameState
     {
         foreach (var bullet in Bullets)
         {
+            UpdateHomingBulletDirection(bullet);
             bullet.Update();
         }
 
@@ -115,12 +126,114 @@ public sealed class GameState
                 if (!wasDead && enemy.IsDead)
                 {
                     Score += ScorePerEnemyDefeat;
+                    DropItemForEnemyDefeat();
                 }
 
-                bullet.Deactivate();
+                if (!bullet.TryConsumePierce())
+                {
+                    bullet.Deactivate();
+                }
+
                 break;
             }
         }
+    }
+
+    public void PickUpFirstDroppedItem()
+    {
+        if (DroppedItems.Count == 0)
+        {
+            return;
+        }
+
+        var item = DroppedItems[0];
+        DroppedItems.RemoveAt(0);
+        Inventory.Add(item);
+    }
+
+    public void EquipFirstInventoryItem()
+    {
+        var item = Inventory.GetFirstItem();
+        if (item is null)
+        {
+            return;
+        }
+
+        Equipment.Equip(item);
+    }
+
+    private void DropItemForEnemyDefeat()
+    {
+        DroppedItems.Add(CreateDefaultDropItem());
+    }
+
+    private static Item CreateDefaultDropItem()
+    {
+        return new Item(
+            "Overclock Core",
+            ItemRarity.Rare,
+            "武器出力を高めるコア。",
+            powerBonus: 5);
+    }
+
+    private void UpdateHomingBulletDirection(Bullet bullet)
+    {
+        if (!bullet.CanHome || Enemies.Count == 0)
+        {
+            return;
+        }
+
+        var nearestEnemy = FindNearestEnemy(bullet);
+        if (nearestEnemy is null)
+        {
+            return;
+        }
+
+        bullet.SetHomingTarget(nearestEnemy.X, nearestEnemy.Y);
+        bullet.SetDirection(GetStepDirection(bullet.X, nearestEnemy.X), GetStepDirection(bullet.Y, nearestEnemy.Y));
+    }
+
+    private Enemy? FindNearestEnemy(Bullet bullet)
+    {
+        Enemy? nearestEnemy = null;
+        var nearestDistance = int.MaxValue;
+
+        foreach (var enemy in Enemies)
+        {
+            if (enemy.IsDead)
+            {
+                continue;
+            }
+
+            var distance = GetDistance(bullet.X, bullet.Y, enemy.X, enemy.Y);
+            if (distance < nearestDistance)
+            {
+                nearestDistance = distance;
+                nearestEnemy = enemy;
+            }
+        }
+
+        return nearestEnemy;
+    }
+
+    private static int GetDistance(int x1, int y1, int x2, int y2)
+    {
+        return System.Math.Abs(x1 - x2) + System.Math.Abs(y1 - y2);
+    }
+
+    private static int GetStepDirection(int current, int target)
+    {
+        if (current < target)
+        {
+            return 1;
+        }
+
+        if (current > target)
+        {
+            return -1;
+        }
+
+        return 0;
     }
 
     private static List<Weapon> CreateInitialWeapons()
