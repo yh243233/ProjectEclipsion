@@ -37,6 +37,14 @@ public sealed class GameStateTests
     }
 
     [Fact]
+    public void 作成時にScoreは0である()
+    {
+        var gameState = new GameState();
+
+        Assert.Equal(0, gameState.Score);
+    }
+
+    [Fact]
     public void MovePlayer_GameState経由でPlayerを移動する()
     {
         var gameState = new GameState();
@@ -187,5 +195,58 @@ public sealed class GameStateTests
 
         Assert.Empty(gameState.Enemies);
         Assert.Empty(gameState.Bullets);
+    }
+
+    [Fact]
+    public void Update_Enemy撃破時にScoreを100加算する()
+    {
+        var gameState = new GameState();
+        gameState.Enemies[0].TakeDamage(20);
+        gameState.Bullets.Add(new Bullet(BulletType.Normal, x: 28, y: 9, directionX: 1, directionY: 0, speed: 1, damage: 10));
+
+        gameState.Update();
+
+        Assert.Equal(100, gameState.Score);
+    }
+
+    [Fact]
+    public void Update_Enemyにダメージを与えただけではScoreは増えない()
+    {
+        var gameState = new GameState();
+        gameState.Bullets.Add(new Bullet(BulletType.Normal, x: 28, y: 9, directionX: 1, directionY: 0, speed: 1, damage: 10));
+
+        gameState.Update();
+
+        Assert.Equal(0, gameState.Score);
+        Assert.Single(gameState.Enemies);
+        Assert.Equal(20, gameState.Enemies[0].Health);
+    }
+
+    [Fact]
+    public void Update_死亡したEnemyが削除されてもScoreは維持される()
+    {
+        var gameState = new GameState();
+        gameState.Enemies[0].TakeDamage(20);
+        gameState.Bullets.Add(new Bullet(BulletType.Normal, x: 28, y: 9, directionX: 1, directionY: 0, speed: 1, damage: 10));
+        gameState.Update();
+
+        gameState.Update();
+
+        Assert.Equal(100, gameState.Score);
+        Assert.Empty(gameState.Enemies);
+    }
+
+    [Fact]
+    public void Update_同じEnemy撃破でScoreを二重加算しない()
+    {
+        var gameState = new GameState();
+        gameState.Enemies[0].TakeDamage(20);
+        gameState.Bullets.Add(new Bullet(BulletType.Normal, x: 28, y: 9, directionX: 1, directionY: 0, speed: 1, damage: 10));
+        gameState.Bullets.Add(new Bullet(BulletType.Normal, x: 28, y: 9, directionX: 1, directionY: 0, speed: 1, damage: 10));
+
+        gameState.Update();
+
+        Assert.Equal(100, gameState.Score);
+        Assert.Empty(gameState.Enemies);
     }
 }
