@@ -83,7 +83,7 @@ while (true)
 
   gameLoop.RunOnce();
   Console.WriteLine();
-  Console.WriteLine("WASDで移動 / 1-6で武器切り替え / Spaceで発射 / Tで10ダメージ / QまたはEscで終了");
+  Console.WriteLine("WASDで移動 / 1-6で武器切り替え / Spaceで発射 / Gで取得 / Eで装備 / Tで10ダメージ / QまたはEscで終了");
 
   var direction = keyboardInput.ReadDirection();
   if (direction.ShouldExit)
@@ -104,6 +104,16 @@ while (true)
   if (direction.WeaponNumber > 0)
   {
     gameState.SwitchWeapon(direction.WeaponNumber);
+  }
+
+  if (direction.ShouldPickUpItem)
+  {
+    gameState.PickUpFirstDroppedItem();
+  }
+
+  if (direction.ShouldEquipItem)
+  {
+    gameState.EquipFirstInventoryItem();
   }
 
   //  public void FireCurrentWeapon()

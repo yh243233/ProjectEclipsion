@@ -373,6 +373,19 @@ public sealed class GameStateTests
     }
 
     [Fact]
+    public void Update_Enemy撃破時にItemがドロップされる()
+    {
+        var gameState = new GameState();
+        gameState.Enemies[0].TakeDamage(20);
+        gameState.Bullets.Add(new Bullet(BulletType.Normal, x: 28, y: 9, directionX: 1, directionY: 0, speed: 1, damage: 10));
+
+        gameState.Update();
+
+        Assert.Single(gameState.DroppedItems);
+        Assert.Equal("Overclock Core", gameState.DroppedItems[0].Name);
+    }
+
+    [Fact]
     public void Update_Enemyにダメージを与えただけではScoreは増えない()
     {
         var gameState = new GameState();
@@ -411,5 +424,59 @@ public sealed class GameStateTests
 
         Assert.Equal(100, gameState.Score);
         Assert.Empty(gameState.Enemies);
+    }
+
+    [Fact]
+    public void PickUpFirstDroppedItem_GameState経由でItemを取得できる()
+    {
+        var gameState = new GameState();
+        gameState.Enemies[0].TakeDamage(20);
+        gameState.Bullets.Add(new Bullet(BulletType.Normal, x: 28, y: 9, directionX: 1, directionY: 0, speed: 1, damage: 10));
+        gameState.Update();
+
+        gameState.PickUpFirstDroppedItem();
+
+        Assert.Equal(1, gameState.Inventory.Count);
+    }
+
+    [Fact]
+    public void PickUpFirstDroppedItem_取得したItemがInventoryに入る()
+    {
+        var gameState = new GameState();
+        gameState.Enemies[0].TakeDamage(20);
+        gameState.Bullets.Add(new Bullet(BulletType.Normal, x: 28, y: 9, directionX: 1, directionY: 0, speed: 1, damage: 10));
+        gameState.Update();
+
+        gameState.PickUpFirstDroppedItem();
+
+        Assert.Equal("Overclock Core", gameState.Inventory.Items[0].Name);
+    }
+
+    [Fact]
+    public void PickUpFirstDroppedItem_取得後にドロップ一覧から削除される()
+    {
+        var gameState = new GameState();
+        gameState.Enemies[0].TakeDamage(20);
+        gameState.Bullets.Add(new Bullet(BulletType.Normal, x: 28, y: 9, directionX: 1, directionY: 0, speed: 1, damage: 10));
+        gameState.Update();
+
+        gameState.PickUpFirstDroppedItem();
+
+        Assert.Empty(gameState.DroppedItems);
+    }
+
+    [Fact]
+    public void EquipFirstInventoryItem_Inventory内のItemを装備できる()
+    {
+        var gameState = new GameState();
+        gameState.Enemies[0].TakeDamage(20);
+        gameState.Bullets.Add(new Bullet(BulletType.Normal, x: 28, y: 9, directionX: 1, directionY: 0, speed: 1, damage: 10));
+        gameState.Update();
+        gameState.PickUpFirstDroppedItem();
+
+        gameState.EquipFirstInventoryItem();
+
+        Assert.NotNull(gameState.Equipment.EquippedItem);
+        Assert.Equal("Overclock Core", gameState.Equipment.EquippedItem.Name);
     }
 }
