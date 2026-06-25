@@ -8,7 +8,7 @@ public sealed class WeaponTests
     [Fact]
     public void Fire_Bulletを生成する()
     {
-        var weapon = new Weapon(WeaponCategory.Assault, new WeaponStats(damage: 10, bulletSpeed: 1));
+        var weapon = new Weapon("Starter Assault", WeaponCategory.Assault, new WeaponStats(damage: 10, bulletSpeed: 1));
 
         var bullet = weapon.Fire(x: 5, y: 7, directionX: 1, directionY: 0);
 
@@ -18,7 +18,7 @@ public sealed class WeaponTests
     [Fact]
     public void Fire_Bulletの初期座標が発射座標と一致する()
     {
-        var weapon = new Weapon(WeaponCategory.Assault, new WeaponStats(damage: 10, bulletSpeed: 1));
+        var weapon = new Weapon("Starter Assault", WeaponCategory.Assault, new WeaponStats(damage: 10, bulletSpeed: 1));
 
         var bullet = weapon.Fire(x: 5, y: 7, directionX: 1, directionY: 0);
 
@@ -29,11 +29,25 @@ public sealed class WeaponTests
     [Fact]
     public void Fire_BulletTypeはNormalになる()
     {
-        var weapon = new Weapon(WeaponCategory.Assault, new WeaponStats(damage: 10, bulletSpeed: 1));
+        var weapon = new Weapon("Starter Assault", WeaponCategory.Assault, new WeaponStats(damage: 10, bulletSpeed: 1));
 
         var bullet = weapon.Fire(x: 5, y: 7, directionX: 1, directionY: 0);
 
         Assert.Equal(BulletType.Normal, bullet.Type);
+    }
+
+    [Fact]
+    public void Weapon_武器名とカテゴリとステータスを保持する()
+    {
+        var stats = new WeaponStats(damage: 10, bulletSpeed: 1, fireRate: 3.0, reloadTime: 1.5);
+
+        var weapon = new Weapon("Starter Assault", WeaponCategory.Assault, stats);
+
+        Assert.Equal("Starter Assault", weapon.Name);
+        Assert.Equal(WeaponCategory.Assault, weapon.Category);
+        Assert.Same(stats, weapon.Stats);
+        Assert.Equal(3.0, weapon.Stats.FireRate);
+        Assert.Equal(1.5, weapon.Stats.ReloadTime);
     }
 
     [Fact]

@@ -19,7 +19,8 @@ public sealed class GameState
         Title = "Project Eclipsion";
         Score = 0;
         Player = new Player(new PlayerStats(maxHealth: 100, maxShield: 50, moveSpeed: 1));
-        CurrentWeapon = new Weapon(WeaponCategory.Assault, new WeaponStats(damage: 10, bulletSpeed: 1));
+        Weapons = CreateInitialWeapons();
+        CurrentWeapon = Weapons[0];
         Bullets = new List<Bullet>();
         Enemies = new List<Enemy>
         {
@@ -36,7 +37,9 @@ public sealed class GameState
     // あるためダブルチェックとはまた違うものになる。
     public Player Player { get; }
 
-    public Weapon CurrentWeapon { get; }
+    public List<Weapon> Weapons { get; }
+
+    public Weapon CurrentWeapon { get; private set; }
 
     public List<Bullet> Bullets { get; }
 
@@ -57,6 +60,16 @@ public sealed class GameState
     {
         var bullet = CurrentWeapon.Fire(Player.X, Player.Y, directionX: 1, directionY: 0);
         Bullets.Add(bullet);
+    }
+
+    public void SwitchWeapon(int weaponNumber)
+    {
+        if (weaponNumber < 1 || weaponNumber > Weapons.Count)
+        {
+            return;
+        }
+
+        CurrentWeapon = Weapons[weaponNumber - 1];
     }
 
     public void Update()
@@ -108,5 +121,18 @@ public sealed class GameState
                 break;
             }
         }
+    }
+
+    private static List<Weapon> CreateInitialWeapons()
+    {
+        return new List<Weapon>
+        {
+            new Weapon("Starter Assault", WeaponCategory.Assault, new WeaponStats(damage: 10, bulletSpeed: 1, fireRate: 3.0, reloadTime: 1.5)),
+            new Weapon("Scatter Shotgun", WeaponCategory.Shotgun, new WeaponStats(damage: 8, bulletSpeed: 1, fireRate: 1.5, reloadTime: 2.0)),
+            new Weapon("Longshot Sniper", WeaponCategory.Sniper, new WeaponStats(damage: 25, bulletSpeed: 3, fireRate: 0.8, reloadTime: 2.5)),
+            new Weapon("Focus Beam", WeaponCategory.Beam, new WeaponStats(damage: 6, bulletSpeed: 2, fireRate: 4.0, reloadTime: 1.2)),
+            new Weapon("Impact Rocket", WeaponCategory.Rocket, new WeaponStats(damage: 30, bulletSpeed: 1, fireRate: 0.6, reloadTime: 3.0)),
+            new Weapon("Support Drone", WeaponCategory.Drone, new WeaponStats(damage: 5, bulletSpeed: 2, fireRate: 2.5, reloadTime: 1.8)),
+        };
     }
 }
