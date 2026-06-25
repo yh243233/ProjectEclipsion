@@ -16,6 +16,11 @@ public sealed class ConsoleRenderer : IRenderer
         Console.WriteLine($"Shield: {gameState.Player.Stats.Shield}/{gameState.Player.Stats.MaxShield}");
         Console.WriteLine($"IsDead: {gameState.Player.IsDead}");
         Console.WriteLine($"Score: {gameState.Score}");
+        Console.WriteLine($"Weapon: {gameState.CurrentWeapon.Name} / {gameState.CurrentWeapon.Category}");
+        Console.WriteLine($"Damage: {gameState.CurrentWeapon.Stats.Damage}");
+        Console.WriteLine($"FireRate: {gameState.CurrentWeapon.Stats.FireRate:0.0}");
+        Console.WriteLine($"ReloadTime: {gameState.CurrentWeapon.Stats.ReloadTime:0.0}");
+        Console.WriteLine($"BulletSpeed: {gameState.CurrentWeapon.Stats.BulletSpeed:0.0}");
 
         foreach (var bullet in gameState.Bullets)
         {

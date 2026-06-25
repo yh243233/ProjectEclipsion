@@ -83,7 +83,7 @@ while (true)
 
   gameLoop.RunOnce();
   Console.WriteLine();
-  Console.WriteLine("WASDで移動 / Spaceで発射 / Tで10ダメージ / QまたはEscで終了");
+  Console.WriteLine("WASDで移動 / 1-6で武器切り替え / Spaceで発射 / Tで10ダメージ / QまたはEscで終了");
 
   var direction = keyboardInput.ReadDirection();
   if (direction.ShouldExit)
@@ -101,12 +101,17 @@ while (true)
     gameState.FireCurrentWeapon();
   }
 
+  if (direction.WeaponNumber > 0)
+  {
+    gameState.SwitchWeapon(direction.WeaponNumber);
+  }
+
   //  public void FireCurrentWeapon()
   //{
   //  var bullet = CurrentWeapon.Fire(Player.X, Player.Y, directionX: 1, directionY: 0);
   //  Bullets.Add(bullet);
   //}
 
-gameState.MovePlayer(direction.DirectionX, direction.DirectionY);
+  gameState.MovePlayer(direction.DirectionX, direction.DirectionY);
   gameState.Update();
 }

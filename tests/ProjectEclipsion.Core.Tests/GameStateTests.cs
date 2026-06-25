@@ -76,6 +76,97 @@ public sealed class GameStateTests
     }
 
     [Fact]
+    public void 作成時に複数武器を保持する()
+    {
+        var gameState = new GameState();
+
+        Assert.Equal(6, gameState.Weapons.Count);
+        Assert.Contains(gameState.Weapons, weapon => weapon.Category == WeaponCategory.Assault);
+        Assert.Contains(gameState.Weapons, weapon => weapon.Category == WeaponCategory.Shotgun);
+        Assert.Contains(gameState.Weapons, weapon => weapon.Category == WeaponCategory.Sniper);
+        Assert.Contains(gameState.Weapons, weapon => weapon.Category == WeaponCategory.Beam);
+        Assert.Contains(gameState.Weapons, weapon => weapon.Category == WeaponCategory.Rocket);
+        Assert.Contains(gameState.Weapons, weapon => weapon.Category == WeaponCategory.Drone);
+    }
+
+    [Theory]
+    [InlineData(1, WeaponCategory.Assault)]
+    [InlineData(2, WeaponCategory.Shotgun)]
+    [InlineData(3, WeaponCategory.Sniper)]
+    [InlineData(4, WeaponCategory.Beam)]
+    [InlineData(5, WeaponCategory.Rocket)]
+    [InlineData(6, WeaponCategory.Drone)]
+    public void SwitchWeapon_番号で現在武器を切り替える(int weaponNumber, WeaponCategory expectedCategory)
+    {
+        var gameState = new GameState();
+
+        gameState.SwitchWeapon(weaponNumber);
+
+        Assert.Equal(expectedCategory, gameState.CurrentWeapon.Category);
+    }
+
+    [Fact]
+    public void SwitchWeapon_無効な番号では現在武器を変更しない()
+    {
+        var gameState = new GameState();
+        gameState.SwitchWeapon(3);
+
+        gameState.SwitchWeapon(7);
+
+        Assert.Equal(WeaponCategory.Sniper, gameState.CurrentWeapon.Category);
+    }
+
+    [Fact]
+    public void SwitchWeapon_Shotgunへ切り替えできる()
+    {
+        var gameState = new GameState();
+
+        gameState.SwitchWeapon(2);
+
+        Assert.Equal(WeaponCategory.Shotgun, gameState.CurrentWeapon.Category);
+    }
+
+    [Fact]
+    public void SwitchWeapon_Sniperへ切り替えできる()
+    {
+        var gameState = new GameState();
+
+        gameState.SwitchWeapon(3);
+
+        Assert.Equal(WeaponCategory.Sniper, gameState.CurrentWeapon.Category);
+    }
+
+    [Fact]
+    public void SwitchWeapon_Beamへ切り替えできる()
+    {
+        var gameState = new GameState();
+
+        gameState.SwitchWeapon(4);
+
+        Assert.Equal(WeaponCategory.Beam, gameState.CurrentWeapon.Category);
+    }
+
+    [Fact]
+    public void SwitchWeapon_Rocketへ切り替えできる()
+    {
+        var gameState = new GameState();
+
+        gameState.SwitchWeapon(5);
+
+        Assert.Equal(WeaponCategory.Rocket, gameState.CurrentWeapon.Category);
+    }
+
+    [Fact]
+    public void SwitchWeapon_Droneへ切り替えできる()
+    {
+        var gameState = new GameState();
+
+        gameState.SwitchWeapon(6);
+
+        Assert.Equal(WeaponCategory.Drone, gameState.CurrentWeapon.Category);
+    }
+
+    [Fact]
     public void FireCurrentWeapon_GameState経由でBulletを発射する()
     {
         var gameState = new GameState();
@@ -86,6 +177,37 @@ public sealed class GameStateTests
         Assert.Equal(gameState.Player.X, gameState.Bullets[0].X);
         Assert.Equal(gameState.Player.Y, gameState.Bullets[0].Y);
         Assert.Equal(BulletType.Normal, gameState.Bullets[0].Type);
+    }
+
+    [Fact]
+    public void FireCurrentWeapon_現在武器でBulletを発射する()
+    {
+        var gameState = new GameState();
+        gameState.SwitchWeapon(3);
+
+        gameState.FireCurrentWeapon();
+
+        Assert.Single(gameState.Bullets);
+        Assert.Equal(25, gameState.Bullets[0].Damage);
+        Assert.Equal(3, gameState.Bullets[0].Speed);
+    }
+
+    [Fact]
+    public void FireCurrentWeapon_武器ごとにBulletのDamageが異なる()
+    {
+        var gameState = new GameState();
+        gameState.SwitchWeapon(1);
+        gameState.FireCurrentWeapon();
+        var assaultDamage = gameState.Bullets[0].Damage;
+
+        gameState.Bullets.Clear();
+        gameState.SwitchWeapon(5);
+        gameState.FireCurrentWeapon();
+        var rocketDamage = gameState.Bullets[0].Damage;
+
+        Assert.NotEqual(assaultDamage, rocketDamage);
+        Assert.Equal(10, assaultDamage);
+        Assert.Equal(30, rocketDamage);
     }
 
     [Fact]

@@ -7,7 +7,7 @@ public sealed class KeyboardInput
 {
     // ここの箇所はReadDirectionは戻り値の型ではなくメソッド名である。
     // int DirectionX, int DirectionY, bool ShouldExitの箇所のintなどは引数の型宣言ではなく返り値の型宣言である。
-    public (int DirectionX, int DirectionY, bool ShouldExit, bool ShouldDamagePlayer, bool ShouldFireBullet) ReadDirection()
+    public (int DirectionX, int DirectionY, bool ShouldExit, bool ShouldDamagePlayer, bool ShouldFireBullet, int WeaponNumber) ReadDirection()
     {
         // ブレークポイントでのデバッグがうまくいかないので調べる。
         // todo:Console.IsInputRedirectedはコンソールの入力がリダイレクトされているかどうかを示すプロパティで、trueの場合はリダイレクトされていることを意味する。
@@ -28,7 +28,7 @@ public sealed class KeyboardInput
             // input < 0 の場合は、入力が終わった／ないと判断して ShouldExit = true を返します。
             // そうでなければ、その文字を ToDirection に渡して移動方向や終了フラグを返します。
             return input < 0
-                ? (0, 0, true, false, false)
+                ? (0, 0, true, false, false, 0)
             // ToDirectionは下の箇所で定義されているメソッドで、char型の引数を受け取り、移動方向と終了フラグを返すものです。
                 : ToDirection((char)input);
             // つまりまとめると、リダイレクトされた入力がある場合は、キーボードからの入力を待たずに、リダイレクトされた入力を処理してゲームを終了するか、移動方向を決定することになる。
@@ -83,16 +83,28 @@ public sealed class KeyboardInput
           // bool ShouldFireBullet
           // の内容になっている。
 
-            ConsoleKey.W => (0, -1, false, false, false),
-            ConsoleKey.S => (0, 1, false, false, false),
-            ConsoleKey.A => (-1, 0, false, false, false),
-            ConsoleKey.D => (1, 0, false, false, false),
-            ConsoleKey.T => (0, 0, false, true, false),
-            ConsoleKey.Spacebar => (0, 0, false, false, true),
-            ConsoleKey.Q => (0, 0, true, false, false),
-            ConsoleKey.Escape => (0, 0, true, false, false),
+            ConsoleKey.W => (0, -1, false, false, false, 0),
+            ConsoleKey.S => (0, 1, false, false, false, 0),
+            ConsoleKey.A => (-1, 0, false, false, false, 0),
+            ConsoleKey.D => (1, 0, false, false, false, 0),
+            ConsoleKey.T => (0, 0, false, true, false, 0),
+            ConsoleKey.Spacebar => (0, 0, false, false, true, 0),
+            ConsoleKey.D1 => (0, 0, false, false, false, 1),
+            ConsoleKey.D2 => (0, 0, false, false, false, 2),
+            ConsoleKey.D3 => (0, 0, false, false, false, 3),
+            ConsoleKey.D4 => (0, 0, false, false, false, 4),
+            ConsoleKey.D5 => (0, 0, false, false, false, 5),
+            ConsoleKey.D6 => (0, 0, false, false, false, 6),
+            ConsoleKey.NumPad1 => (0, 0, false, false, false, 1),
+            ConsoleKey.NumPad2 => (0, 0, false, false, false, 2),
+            ConsoleKey.NumPad3 => (0, 0, false, false, false, 3),
+            ConsoleKey.NumPad4 => (0, 0, false, false, false, 4),
+            ConsoleKey.NumPad5 => (0, 0, false, false, false, 5),
+            ConsoleKey.NumPad6 => (0, 0, false, false, false, 6),
+            ConsoleKey.Q => (0, 0, true, false, false, 0),
+            ConsoleKey.Escape => (0, 0, true, false, false, 0),
             // ここはそれ以外のキーが押された場合のデフォルトの動作を定義している。今回は移動なし、終了なしの状態を返す。
-            _ => (0, 0, false, false, false),
+            _ => (0, 0, false, false, false, 0),
         };
     }
 
@@ -100,18 +112,24 @@ public sealed class KeyboardInput
     // using System;
     // todo:pace ProjectEclipsion.App.Input;の二つしかネームスペース宣言をしていないのになぜリターン時に
     // char.ToUpperInvariantが使えているのかわからない。
-    private static (int DirectionX, int DirectionY, bool ShouldExit, bool ShouldDamagePlayer, bool ShouldFireBullet) ToDirection(char input)
+    private static (int DirectionX, int DirectionY, bool ShouldExit, bool ShouldDamagePlayer, bool ShouldFireBullet, int WeaponNumber) ToDirection(char input)
     {
         return char.ToUpperInvariant(input) switch
         {
-            'W' => (0, -1, false, false, false),
-            'S' => (0, 1, false, false, false),
-            'A' => (-1, 0, false, false, false),
-            'D' => (1, 0, false, false, false),
-            'T' => (0, 0, false, true, false),
-            ' ' => (0, 0, false, false, true),
-            'Q' => (0, 0, true, false, false),
-            _ => (0, 0, false, false, false),
+            'W' => (0, -1, false, false, false, 0),
+            'S' => (0, 1, false, false, false, 0),
+            'A' => (-1, 0, false, false, false, 0),
+            'D' => (1, 0, false, false, false, 0),
+            'T' => (0, 0, false, true, false, 0),
+            ' ' => (0, 0, false, false, true, 0),
+            '1' => (0, 0, false, false, false, 1),
+            '2' => (0, 0, false, false, false, 2),
+            '3' => (0, 0, false, false, false, 3),
+            '4' => (0, 0, false, false, false, 4),
+            '5' => (0, 0, false, false, false, 5),
+            '6' => (0, 0, false, false, false, 6),
+            'Q' => (0, 0, true, false, false, 0),
+            _ => (0, 0, false, false, false, 0),
         };
     }
 }
