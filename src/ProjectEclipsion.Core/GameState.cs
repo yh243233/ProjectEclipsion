@@ -76,6 +76,7 @@ public sealed class GameState
     {
         foreach (var bullet in Bullets)
         {
+            UpdateHomingBulletDirection(bullet);
             bullet.Update();
         }
 
@@ -117,10 +118,74 @@ public sealed class GameState
                     Score += ScorePerEnemyDefeat;
                 }
 
-                bullet.Deactivate();
+                if (!bullet.TryConsumePierce())
+                {
+                    bullet.Deactivate();
+                }
+
                 break;
             }
         }
+    }
+
+    private void UpdateHomingBulletDirection(Bullet bullet)
+    {
+        if (!bullet.CanHome || Enemies.Count == 0)
+        {
+            return;
+        }
+
+        var nearestEnemy = FindNearestEnemy(bullet);
+        if (nearestEnemy is null)
+        {
+            return;
+        }
+
+        bullet.SetHomingTarget(nearestEnemy.X, nearestEnemy.Y);
+        bullet.SetDirection(GetStepDirection(bullet.X, nearestEnemy.X), GetStepDirection(bullet.Y, nearestEnemy.Y));
+    }
+
+    private Enemy? FindNearestEnemy(Bullet bullet)
+    {
+        Enemy? nearestEnemy = null;
+        var nearestDistance = int.MaxValue;
+
+        foreach (var enemy in Enemies)
+        {
+            if (enemy.IsDead)
+            {
+                continue;
+            }
+
+            var distance = GetDistance(bullet.X, bullet.Y, enemy.X, enemy.Y);
+            if (distance < nearestDistance)
+            {
+                nearestDistance = distance;
+                nearestEnemy = enemy;
+            }
+        }
+
+        return nearestEnemy;
+    }
+
+    private static int GetDistance(int x1, int y1, int x2, int y2)
+    {
+        return System.Math.Abs(x1 - x2) + System.Math.Abs(y1 - y2);
+    }
+
+    private static int GetStepDirection(int current, int target)
+    {
+        if (current < target)
+        {
+            return 1;
+        }
+
+        if (current > target)
+        {
+            return -1;
+        }
+
+        return 0;
     }
 
     private static List<Weapon> CreateInitialWeapons()

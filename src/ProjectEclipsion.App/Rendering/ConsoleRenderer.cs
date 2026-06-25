@@ -24,7 +24,7 @@ public sealed class ConsoleRenderer : IRenderer
 
         foreach (var bullet in gameState.Bullets)
         {
-            Console.WriteLine($"Bullet: ({bullet.X}, {bullet.Y})");
+            Console.WriteLine($"Bullet: ({bullet.X}, {bullet.Y}) Type: {bullet.Type} Damage: {bullet.Damage} Speed: {bullet.Speed}");
         }
 
         foreach (var enemy in gameState.Enemies)

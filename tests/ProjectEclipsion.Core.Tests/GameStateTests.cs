@@ -188,8 +188,49 @@ public sealed class GameStateTests
         gameState.FireCurrentWeapon();
 
         Assert.Single(gameState.Bullets);
+        Assert.Equal(BulletType.Laser, gameState.Bullets[0].Type);
         Assert.Equal(25, gameState.Bullets[0].Damage);
         Assert.Equal(3, gameState.Bullets[0].Speed);
+    }
+
+    [Fact]
+    public void FireCurrentWeapon_RocketからExplosive弾を発射する()
+    {
+        var gameState = new GameState();
+        gameState.SwitchWeapon(5);
+
+        gameState.FireCurrentWeapon();
+
+        Assert.Single(gameState.Bullets);
+        Assert.Equal(BulletType.Explosive, gameState.Bullets[0].Type);
+        Assert.True(gameState.Bullets[0].ExplosionRadius > 0);
+    }
+
+    [Fact]
+    public void FireCurrentWeapon_DroneからHoming弾を発射する()
+    {
+        var gameState = new GameState();
+        gameState.SwitchWeapon(6);
+
+        gameState.FireCurrentWeapon();
+
+        Assert.Single(gameState.Bullets);
+        Assert.Equal(BulletType.Homing, gameState.Bullets[0].Type);
+        Assert.True(gameState.Bullets[0].CanHome);
+    }
+
+    [Fact]
+    public void Update_Homing弾は最寄りEnemyへ方向補正する()
+    {
+        var gameState = new GameState();
+        gameState.SwitchWeapon(6);
+        gameState.FireCurrentWeapon();
+
+        gameState.Update();
+
+        Assert.True(gameState.Bullets[0].HasHomingTarget);
+        Assert.Equal(1, gameState.Bullets[0].DirectionX);
+        Assert.Equal(1, gameState.Bullets[0].DirectionY);
     }
 
     [Fact]
