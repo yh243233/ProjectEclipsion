@@ -1,5 +1,6 @@
 using ProjectEclipsion.Core;
 using ProjectEclipsion.Core.Gameplay.Enemies;
+using ProjectEclipsion.Core.Gameplay.StatusEffects;
 using ProjectEclipsion.Core.Gameplay.Weapons;
 using Xunit;
 
@@ -478,5 +479,15 @@ public sealed class GameStateTests
 
         Assert.NotNull(gameState.Equipment.EquippedItem);
         Assert.Equal("Overclock Core", gameState.Equipment.EquippedItem.Name);
+    }
+
+    [Fact]
+    public void ApplyStatusEffectToFirstEnemy_GameState経由で状態異常を付与できる()
+    {
+        var gameState = new GameState();
+
+        gameState.ApplyStatusEffectToFirstEnemy(StatusEffectType.Burn);
+
+        Assert.True(gameState.Enemies[0].StatusEffects.Has(StatusEffectType.Burn));
     }
 }

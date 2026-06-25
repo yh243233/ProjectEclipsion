@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using ProjectEclipsion.Core;
 using ProjectEclipsion.Core.Rendering;
 
@@ -43,7 +44,17 @@ public sealed class ConsoleRenderer : IRenderer
 
         foreach (var enemy in gameState.Enemies)
         {
-            Console.WriteLine($"Enemy: ({enemy.X}, {enemy.Y}) HP: {enemy.Health} State: {enemy.AiState}");
+            Console.WriteLine($"Enemy: ({enemy.X}, {enemy.Y}) HP: {enemy.Health} State: {enemy.AiState} Status: {FormatStatusEffects(enemy)}");
         }
+    }
+
+    private static string FormatStatusEffects(ProjectEclipsion.Core.Gameplay.Enemies.Enemy enemy)
+    {
+        if (enemy.StatusEffects.Count == 0)
+        {
+            return "None";
+        }
+
+        return string.Join(", ", enemy.StatusEffects.Effects.Select(effect => $"{effect.Type}({effect.Duration})"));
     }
 }

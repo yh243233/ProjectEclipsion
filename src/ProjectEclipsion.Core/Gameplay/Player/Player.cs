@@ -1,5 +1,6 @@
 
 using System;
+using ProjectEclipsion.Core.Gameplay.StatusEffects;
 
 namespace ProjectEclipsion.Core.Gameplay.Player;
 
@@ -10,6 +11,7 @@ public sealed class Player
         Stats = stats ?? throw new ArgumentNullException(nameof(stats));
         X = x;
         Y = y;
+        StatusEffects = new StatusEffectList();
     }
 
     public PlayerStats Stats { get; }
@@ -20,6 +22,7 @@ public sealed class Player
 
     public bool IsDead => Stats.IsDead;
 
+    public StatusEffectList StatusEffects { get; }
 
     public void Move(int directionX, int directionY)
     {
@@ -73,5 +76,15 @@ public sealed class Player
         {
             Stats.SetHealth(Stats.Health - remainingDamage);
         }
+    }
+
+    public void ApplyStatusEffect(StatusEffect effect)
+    {
+        StatusEffects.Apply(effect);
+    }
+
+    public void UpdateStatusEffects()
+    {
+        StatusEffects.Update(TakeDamage);
     }
 }
