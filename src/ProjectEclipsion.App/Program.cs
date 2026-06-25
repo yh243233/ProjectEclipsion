@@ -83,7 +83,7 @@ while (true)
 
   gameLoop.RunOnce();
   Console.WriteLine();
-  Console.WriteLine("WASDで移動 / 1-6で武器切り替え / Spaceで発射 / Gで取得 / Eで装備 / B/F/H/C/Vで状態異常 / Tで10ダメージ / QまたはEscで終了");
+  Console.WriteLine("WASDで移動 / 1-6で武器切り替え / 7-9でスキル解放 / Spaceで発射 / Gで取得 / Eで装備 / B/F/H/C/Vで状態異常 / Tで10ダメージ / QまたはEscで終了");
 
   var direction = keyboardInput.ReadDirection();
   if (direction.ShouldExit)
@@ -119,6 +119,11 @@ while (true)
   if (direction.StatusEffectType.HasValue)
   {
     gameState.ApplyStatusEffectToFirstEnemy(direction.StatusEffectType.Value);
+  }
+
+  if (direction.SkillTreeType.HasValue)
+  {
+    gameState.UnlockFirstSkill(direction.SkillTreeType.Value);
   }
 
   //  public void FireCurrentWeapon()

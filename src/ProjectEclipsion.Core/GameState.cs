@@ -2,6 +2,7 @@ using ProjectEclipsion.Core.Gameplay.Player;
 using System.Collections.Generic;
 using ProjectEclipsion.Core.Gameplay.Enemies;
 using ProjectEclipsion.Core.Gameplay.Items;
+using ProjectEclipsion.Core.Gameplay.Skills;
 using ProjectEclipsion.Core.Gameplay.StatusEffects;
 using ProjectEclipsion.Core.Gameplay.Weapons;
 
@@ -27,6 +28,9 @@ public sealed class GameState
         DroppedItems = new List<Item>();
         Inventory = new Inventory();
         Equipment = new Equipment();
+        CombatSkillTree = CombatTree.Create();
+        TechSkillTree = TechTree.Create();
+        SurvivalSkillTree = SurvivalTree.Create();
         Enemies = new List<Enemy>
         {
             new Enemy(x: 30, y: 10, maxHealth: 30, aiLevel: EnemyAiLevel.Basic),
@@ -55,6 +59,12 @@ public sealed class GameState
     public Inventory Inventory { get; }
 
     public Equipment Equipment { get; }
+
+    public SkillTree CombatSkillTree { get; }
+
+    public SkillTree TechSkillTree { get; }
+
+    public SkillTree SurvivalSkillTree { get; }
 
     public void MovePlayer(int directionX, int directionY)
     {
@@ -116,6 +126,11 @@ public sealed class GameState
         }
 
         Enemies[0].ApplyStatusEffect(CreateDefaultStatusEffect(type));
+    }
+
+    public bool UnlockFirstSkill(SkillTreeType treeType)
+    {
+        return GetSkillTree(treeType).UnlockFirstAvailable(Player);
     }
 
     private void HandleBulletEnemyCollisions()
@@ -204,6 +219,17 @@ public sealed class GameState
             StatusEffectType.Corrosion => new StatusEffect(type, duration: 4, effectValue: 0, damageTakenMultiplier: 1.5),
             StatusEffectType.Virus => new StatusEffect(type, duration: 4, effectValue: 0, preventsSkillUse: true),
             _ => throw new System.ArgumentOutOfRangeException(nameof(type), type, "未対応の状態異常です。"),
+        };
+    }
+
+    private SkillTree GetSkillTree(SkillTreeType treeType)
+    {
+        return treeType switch
+        {
+            SkillTreeType.Combat => CombatSkillTree,
+            SkillTreeType.Tech => TechSkillTree,
+            SkillTreeType.Survival => SurvivalSkillTree,
+            _ => throw new System.ArgumentOutOfRangeException(nameof(treeType), treeType, "未対応のスキルツリーです。"),
         };
     }
 
