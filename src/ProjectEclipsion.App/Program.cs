@@ -1,7 +1,9 @@
-using System;
 using ProjectEclipsion.App.Input;
 using ProjectEclipsion.App.Rendering;
 using ProjectEclipsion.Core;
+using ProjectEclipsion.Core.Gameplay.Player;
+using ProjectEclipsion.Core.Gameplay.Weapons;
+using System;
 
 // namespaceの宣言はプロジェクト/フォルダの順になる
 
@@ -81,7 +83,7 @@ while (true)
 
   gameLoop.RunOnce();
   Console.WriteLine();
-  Console.WriteLine("WASDで移動 / Tで10ダメージ / QまたはEscで終了");
+  Console.WriteLine("WASDで移動 / Spaceで発射 / Tで10ダメージ / QまたはEscで終了");
 
   var direction = keyboardInput.ReadDirection();
   if (direction.ShouldExit)
@@ -94,5 +96,17 @@ while (true)
     gameState.DamagePlayer(10);
   }
 
-  gameState.MovePlayer(direction.DirectionX, direction.DirectionY);
+  if (direction.ShouldFireBullet)
+  {
+    gameState.FireCurrentWeapon();
+  }
+
+  //  public void FireCurrentWeapon()
+  //{
+  //  var bullet = CurrentWeapon.Fire(Player.X, Player.Y, directionX: 1, directionY: 0);
+  //  Bullets.Add(bullet);
+  //}
+
+gameState.MovePlayer(direction.DirectionX, direction.DirectionY);
+  gameState.Update();
 }
