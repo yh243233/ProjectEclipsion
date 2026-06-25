@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using ProjectEclipsion.Core;
+using ProjectEclipsion.Core.Gameplay.Skills;
 using ProjectEclipsion.Core.Rendering;
 
 namespace ProjectEclipsion.App.Rendering;
@@ -17,6 +18,10 @@ public sealed class ConsoleRenderer : IRenderer
         Console.WriteLine($"Shield: {gameState.Player.Stats.Shield}/{gameState.Player.Stats.MaxShield}");
         Console.WriteLine($"IsDead: {gameState.Player.IsDead}");
         Console.WriteLine($"Score: {gameState.Score}");
+        Console.WriteLine($"SkillPoint: {gameState.Player.SkillPoint}");
+        Console.WriteLine($"Combat Skills: {FormatUnlockedSkills(gameState.CombatSkillTree)}");
+        Console.WriteLine($"Tech Skills: {FormatUnlockedSkills(gameState.TechSkillTree)}");
+        Console.WriteLine($"Survival Skills: {FormatUnlockedSkills(gameState.SurvivalSkillTree)}");
         Console.WriteLine($"Weapon: {gameState.CurrentWeapon.Name} / {gameState.CurrentWeapon.Category}");
         Console.WriteLine($"Damage: {gameState.CurrentWeapon.Stats.Damage}");
         Console.WriteLine($"FireRate: {gameState.CurrentWeapon.Stats.FireRate:0.0}");
@@ -56,5 +61,15 @@ public sealed class ConsoleRenderer : IRenderer
         }
 
         return string.Join(", ", enemy.StatusEffects.Effects.Select(effect => $"{effect.Type}({effect.Duration})"));
+    }
+
+    private static string FormatUnlockedSkills(SkillTree skillTree)
+    {
+        if (skillTree.UnlockedNodes.Count == 0)
+        {
+            return "None";
+        }
+
+        return string.Join(", ", skillTree.UnlockedNodes.Select(node => node.Name));
     }
 }

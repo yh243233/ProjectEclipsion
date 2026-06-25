@@ -11,6 +11,7 @@ public sealed class Player
         Stats = stats ?? throw new ArgumentNullException(nameof(stats));
         X = x;
         Y = y;
+        SkillPoint = 3;
         StatusEffects = new StatusEffectList();
     }
 
@@ -21,6 +22,8 @@ public sealed class Player
     public int Y { get; private set; }
 
     public bool IsDead => Stats.IsDead;
+
+    public int SkillPoint { get; private set; }
 
     public StatusEffectList StatusEffects { get; }
 
@@ -86,5 +89,21 @@ public sealed class Player
     public void UpdateStatusEffects()
     {
         StatusEffects.Update(TakeDamage);
+    }
+
+    public bool TrySpendSkillPoints(int cost)
+    {
+        if (cost < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(cost), "スキルポイント消費量は0以上である必要があります。");
+        }
+
+        if (SkillPoint < cost)
+        {
+            return false;
+        }
+
+        SkillPoint -= cost;
+        return true;
     }
 }

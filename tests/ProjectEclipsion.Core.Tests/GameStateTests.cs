@@ -1,5 +1,6 @@
 using ProjectEclipsion.Core;
 using ProjectEclipsion.Core.Gameplay.Enemies;
+using ProjectEclipsion.Core.Gameplay.Skills;
 using ProjectEclipsion.Core.Gameplay.StatusEffects;
 using ProjectEclipsion.Core.Gameplay.Weapons;
 using Xunit;
@@ -489,5 +490,41 @@ public sealed class GameStateTests
         gameState.ApplyStatusEffectToFirstEnemy(StatusEffectType.Burn);
 
         Assert.True(gameState.Enemies[0].StatusEffects.Has(StatusEffectType.Burn));
+    }
+
+    [Fact]
+    public void UnlockFirstSkill_GameState経由でCombatスキルを解放できる()
+    {
+        var gameState = new GameState();
+
+        var result = gameState.UnlockFirstSkill(SkillTreeType.Combat);
+
+        Assert.True(result);
+        Assert.Equal(2, gameState.Player.SkillPoint);
+        Assert.Contains(gameState.CombatSkillTree.UnlockedNodes, node => node.Name == "Critical");
+    }
+
+    [Fact]
+    public void UnlockFirstSkill_GameState経由でTechスキルを解放できる()
+    {
+        var gameState = new GameState();
+
+        var result = gameState.UnlockFirstSkill(SkillTreeType.Tech);
+
+        Assert.True(result);
+        Assert.Equal(2, gameState.Player.SkillPoint);
+        Assert.Contains(gameState.TechSkillTree.UnlockedNodes, node => node.Name == "Drone");
+    }
+
+    [Fact]
+    public void UnlockFirstSkill_GameState経由でSurvivalスキルを解放できる()
+    {
+        var gameState = new GameState();
+
+        var result = gameState.UnlockFirstSkill(SkillTreeType.Survival);
+
+        Assert.True(result);
+        Assert.Equal(2, gameState.Player.SkillPoint);
+        Assert.Contains(gameState.SurvivalSkillTree.UnlockedNodes, node => node.Name == "HP");
     }
 }

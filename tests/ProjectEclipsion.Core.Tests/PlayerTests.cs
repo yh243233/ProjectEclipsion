@@ -30,6 +30,14 @@ public sealed class PlayerTests
     }
 
     [Fact]
+    public void Player_作成時にSkillPointを3で初期化する()
+    {
+        var player = new Player(new PlayerStats(maxHealth: 100, maxShield: 50, moveSpeed: 1));
+
+        Assert.Equal(3, player.SkillPoint);
+    }
+
+    [Fact]
     public void Move_移動速度を反映して座標を更新する()
     {
         var player = new Player(new PlayerStats(maxHealth: 100, maxShield: 50, moveSpeed: 3), x: 10, y: 20);
