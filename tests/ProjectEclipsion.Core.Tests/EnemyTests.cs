@@ -1,4 +1,5 @@
 using ProjectEclipsion.Core.Gameplay.Enemies;
+using ProjectEclipsion.Core.Gameplay.StatusEffects;
 using Xunit;
 
 namespace ProjectEclipsion.Core.Tests;
@@ -82,5 +83,26 @@ public sealed class EnemyTests
         enemy.TakeDamage(30);
 
         Assert.True(enemy.IsDead);
+    }
+
+    [Fact]
+    public void ApplyStatusEffect_状態異常を付与できる()
+    {
+        var enemy = new Enemy(x: 30, y: 10, maxHealth: 30, aiLevel: EnemyAiLevel.Basic);
+
+        enemy.ApplyStatusEffect(new StatusEffect(StatusEffectType.Freeze, duration: 5, effectValue: 0));
+
+        Assert.True(enemy.StatusEffects.Has(StatusEffectType.Freeze));
+    }
+
+    [Fact]
+    public void UpdateStatusEffects_BurnでHPが減る()
+    {
+        var enemy = new Enemy(x: 30, y: 10, maxHealth: 30, aiLevel: EnemyAiLevel.Basic);
+        enemy.ApplyStatusEffect(new StatusEffect(StatusEffectType.Burn, duration: 3, effectValue: 5));
+
+        enemy.UpdateStatusEffects();
+
+        Assert.Equal(25, enemy.Health);
     }
 }

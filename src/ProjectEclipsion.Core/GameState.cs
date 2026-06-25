@@ -2,6 +2,7 @@ using ProjectEclipsion.Core.Gameplay.Player;
 using System.Collections.Generic;
 using ProjectEclipsion.Core.Gameplay.Enemies;
 using ProjectEclipsion.Core.Gameplay.Items;
+using ProjectEclipsion.Core.Gameplay.StatusEffects;
 using ProjectEclipsion.Core.Gameplay.Weapons;
 
 namespace ProjectEclipsion.Core;
@@ -92,12 +93,29 @@ public sealed class GameState
 
         foreach (var enemy in Enemies)
         {
+            enemy.UpdateStatusEffects();
+            if (enemy.IsDead)
+            {
+                continue;
+            }
+
             enemy.Update(Player.X, Player.Y);
         }
 
+        Player.UpdateStatusEffects();
         HandleBulletEnemyCollisions();
         Bullets.RemoveAll(bullet => !bullet.IsActive);
         Enemies.RemoveAll(enemy => enemy.IsDead);
+    }
+
+    public void ApplyStatusEffectToFirstEnemy(StatusEffectType type)
+    {
+        if (Enemies.Count == 0)
+        {
+            return;
+        }
+
+        Enemies[0].ApplyStatusEffect(CreateDefaultStatusEffect(type));
     }
 
     private void HandleBulletEnemyCollisions()
@@ -174,6 +192,19 @@ public sealed class GameState
             ItemRarity.Rare,
             "武器出力を高めるコア。",
             powerBonus: 5);
+    }
+
+    private static StatusEffect CreateDefaultStatusEffect(StatusEffectType type)
+    {
+        return type switch
+        {
+            StatusEffectType.Burn => new StatusEffect(type, duration: 3, effectValue: 5),
+            StatusEffectType.Freeze => new StatusEffect(type, duration: 5, effectValue: 0, moveSpeedMultiplier: 0.5),
+            StatusEffectType.Shock => new StatusEffect(type, duration: 2, effectValue: 0, preventsAction: true),
+            StatusEffectType.Corrosion => new StatusEffect(type, duration: 4, effectValue: 0, damageTakenMultiplier: 1.5),
+            StatusEffectType.Virus => new StatusEffect(type, duration: 4, effectValue: 0, preventsSkillUse: true),
+            _ => throw new System.ArgumentOutOfRangeException(nameof(type), type, "未対応の状態異常です。"),
+        };
     }
 
     private void UpdateHomingBulletDirection(Bullet bullet)

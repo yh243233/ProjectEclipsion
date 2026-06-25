@@ -1,4 +1,5 @@
 using System;
+using ProjectEclipsion.Core.Gameplay.StatusEffects;
 
 namespace ProjectEclipsion.Core.Gameplay.Enemies;
 
@@ -17,6 +18,7 @@ public sealed class Enemy
         Health = maxHealth;
         AiLevel = aiLevel;
         AiState = EnemyAiState.Idle;
+        StatusEffects = new StatusEffectList();
     }
 
     public int X { get; private set; }
@@ -30,6 +32,8 @@ public sealed class Enemy
     public EnemyAiLevel AiLevel { get; }
 
     public EnemyAiState AiState { get; private set; }
+
+    public StatusEffectList StatusEffects { get; }
 
     public bool IsDead => Health == 0;
 
@@ -64,5 +68,15 @@ public sealed class Enemy
         }
 
         Health = Math.Max(0, Health - amount);
+    }
+
+    public void ApplyStatusEffect(StatusEffect effect)
+    {
+        StatusEffects.Apply(effect);
+    }
+
+    public void UpdateStatusEffects()
+    {
+        StatusEffects.Update(TakeDamage);
     }
 }
