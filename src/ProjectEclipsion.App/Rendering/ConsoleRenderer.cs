@@ -20,5 +20,10 @@ public sealed class ConsoleRenderer : IRenderer
         {
             Console.WriteLine($"Bullet: ({bullet.X}, {bullet.Y})");
         }
+
+        foreach (var enemy in gameState.Enemies)
+        {
+            Console.WriteLine($"Enemy: ({enemy.X}, {enemy.Y}) HP: {enemy.Health} State: {enemy.AiState}");
+        }
     }
 }

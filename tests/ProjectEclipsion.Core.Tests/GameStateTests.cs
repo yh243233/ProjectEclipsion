@@ -1,4 +1,5 @@
 using ProjectEclipsion.Core;
+using ProjectEclipsion.Core.Gameplay.Enemies;
 using ProjectEclipsion.Core.Gameplay.Weapons;
 using Xunit;
 
@@ -90,5 +91,29 @@ public sealed class GameStateTests
 
         Assert.Equal(startX + 1, gameState.Bullets[0].X);
         Assert.Equal(gameState.Player.Y, gameState.Bullets[0].Y);
+    }
+
+    [Fact]
+    public void 作成時にEnemyを保持する()
+    {
+        var gameState = new GameState();
+
+        Assert.Single(gameState.Enemies);
+        Assert.Equal(EnemyAiLevel.Basic, gameState.Enemies[0].AiLevel);
+    }
+
+    [Fact]
+    public void Update_EnemyをPlayerへ接近させる()
+    {
+        var gameState = new GameState();
+        var enemy = gameState.Enemies[0];
+        var startX = enemy.X;
+        var startY = enemy.Y;
+
+        gameState.Update();
+
+        Assert.Equal(startX - 1, enemy.X);
+        Assert.Equal(startY - 1, enemy.Y);
+        Assert.Equal(EnemyAiState.Combat, enemy.AiState);
     }
 }

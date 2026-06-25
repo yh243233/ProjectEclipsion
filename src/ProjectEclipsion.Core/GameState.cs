@@ -1,5 +1,6 @@
 using ProjectEclipsion.Core.Gameplay.Player;
 using System.Collections.Generic;
+using ProjectEclipsion.Core.Gameplay.Enemies;
 using ProjectEclipsion.Core.Gameplay.Weapons;
 
 namespace ProjectEclipsion.Core;
@@ -17,6 +18,10 @@ public sealed class GameState
         Player = new Player(new PlayerStats(maxHealth: 100, maxShield: 50, moveSpeed: 1));
         CurrentWeapon = new Weapon(WeaponCategory.Assault, new WeaponStats(damage: 10, bulletSpeed: 1));
         Bullets = new List<Bullet>();
+        Enemies = new List<Enemy>
+        {
+            new Enemy(x: 30, y: 10, maxHealth: 30, aiLevel: EnemyAiLevel.Basic),
+        };
     }
 
     public string Title { get; }
@@ -28,6 +33,8 @@ public sealed class GameState
     public Weapon CurrentWeapon { get; }
 
     public List<Bullet> Bullets { get; }
+
+    public List<Enemy> Enemies { get; }
 
     public void MovePlayer(int directionX, int directionY)
     {
@@ -51,6 +58,11 @@ public sealed class GameState
         foreach (var bullet in Bullets)
         {
             bullet.Update();
+        }
+
+        foreach (var enemy in Enemies)
+        {
+            enemy.Update(Player.X, Player.Y);
         }
     }
 }
