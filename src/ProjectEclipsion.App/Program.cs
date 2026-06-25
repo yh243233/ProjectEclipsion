@@ -69,6 +69,9 @@ var keyboardInput = new KeyboardInput();
 // それ以外ならプレイヤーを移動する。
 // つまり「描画→操作入力→終了判定→移動」を繰り返す、ゲームのメインループです。
 
+// 2026-06-08
+// ステップ1-4
+
 while (true)
 {
   if (!Console.IsInputRedirected && !Console.IsOutputRedirected)

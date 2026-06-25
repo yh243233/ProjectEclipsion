@@ -26,6 +26,7 @@ public sealed class GameState
         Player.Move(directionX, directionY);
     }
 
+    // program.cs内部でPlayerクラスのMoveメソッドを呼び出すためのラッパーメソッド。
     public void DamagePlayer(int amount)
     {
         Player.TakeDamage(amount);
