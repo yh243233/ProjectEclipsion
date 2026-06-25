@@ -46,4 +46,26 @@ public sealed class WeaponTests
         Assert.Equal(6, bullet.X);
         Assert.Equal(7, bullet.Y);
     }
+
+    [Fact]
+    public void Deactivate_Bulletを非アクティブにする()
+    {
+        var bullet = new Bullet(BulletType.Normal, x: 5, y: 7, directionX: 1, directionY: 0, speed: 1, damage: 10);
+
+        bullet.Deactivate();
+
+        Assert.False(bullet.IsActive);
+    }
+
+    [Fact]
+    public void Update_非アクティブなBulletは移動しない()
+    {
+        var bullet = new Bullet(BulletType.Normal, x: 5, y: 7, directionX: 1, directionY: 0, speed: 1, damage: 10);
+        bullet.Deactivate();
+
+        bullet.Update();
+
+        Assert.Equal(5, bullet.X);
+        Assert.Equal(7, bullet.Y);
+    }
 }

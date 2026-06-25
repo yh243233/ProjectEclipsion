@@ -11,6 +11,7 @@ public sealed class Bullet
         DirectionY = directionY;
         Speed = speed;
         Damage = damage;
+        IsActive = true;
     }
 
     public BulletType Type { get; }
@@ -27,9 +28,21 @@ public sealed class Bullet
 
     public int Damage { get; }
 
+    public bool IsActive { get; private set; }
+
     public void Update()
     {
+        if (!IsActive)
+        {
+            return;
+        }
+
         X += DirectionX * Speed;
         Y += DirectionY * Speed;
+    }
+
+    public void Deactivate()
+    {
+        IsActive = false;
     }
 }

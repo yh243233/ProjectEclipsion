@@ -64,5 +64,37 @@ public sealed class GameState
         {
             enemy.Update(Player.X, Player.Y);
         }
+
+        HandleBulletEnemyCollisions();
+        Bullets.RemoveAll(bullet => !bullet.IsActive);
+        Enemies.RemoveAll(enemy => enemy.IsDead);
+    }
+
+    private void HandleBulletEnemyCollisions()
+    {
+        foreach (var bullet in Bullets)
+        {
+            if (!bullet.IsActive)
+            {
+                continue;
+            }
+
+            foreach (var enemy in Enemies)
+            {
+                if (enemy.IsDead)
+                {
+                    continue;
+                }
+
+                if (bullet.X != enemy.X || bullet.Y != enemy.Y)
+                {
+                    continue;
+                }
+
+                enemy.TakeDamage(bullet.Damage);
+                bullet.Deactivate();
+                break;
+            }
+        }
     }
 }
