@@ -5,6 +5,7 @@ using ProjectEclipsion.Core.Gameplay.Items;
 using ProjectEclipsion.Core.Gameplay.Skills;
 using ProjectEclipsion.Core.Gameplay.StatusEffects;
 using ProjectEclipsion.Core.Gameplay.Weapons;
+using ProjectEclipsion.Core.Gameplay.World.Generation;
 using ProjectEclipsion.Core.Gameplay.World.Maps;
 using ProjectEclipsion.Core.Gameplay.World.Rooms;
 
@@ -33,7 +34,7 @@ public sealed class GameState
         CombatSkillTree = CombatTree.Create();
         TechSkillTree = TechTree.Create();
         SurvivalSkillTree = SurvivalTree.Create();
-        GameMap = GameMap.CreatePhase2Default();
+        GameMap = new BspMapGenerator().Generate();
         Enemies = new List<Enemy>
         {
             new Enemy(x: 30, y: 10, maxHealth: 30, aiLevel: EnemyAiLevel.Basic),

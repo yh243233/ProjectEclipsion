@@ -1,3 +1,4 @@
+using System.Linq;
 using ProjectEclipsion.Core;
 using ProjectEclipsion.Core.Gameplay.Enemies;
 using ProjectEclipsion.Core.Gameplay.Skills;
@@ -533,11 +534,22 @@ public sealed class GameStateTests
     public void MoveRoom_GameState経由でRoom移動できる()
     {
         var gameState = new GameState();
+        var direction = gameState.GameMap.CurrentRoom.Connections.Keys.First();
 
-        var result = gameState.MoveRoom(RoomDirection.Right);
+        var result = gameState.MoveRoom(direction);
 
         Assert.True(result);
-        Assert.Equal("Fortress Gate", gameState.GameMap.CurrentRoom.Name);
+        Assert.NotEqual("Room 0", gameState.GameMap.CurrentRoom.Name);
+    }
+
+    [Fact]
+    public void 作成時に生成済みGameMapを保持する()
+    {
+        var gameState = new GameState();
+
+        Assert.NotNull(gameState.GameMap);
+        Assert.True(gameState.GameMap.Rooms.Count >= 5);
+        Assert.Equal("Room 0", gameState.GameMap.CurrentRoom.Name);
     }
 
     [Fact]
