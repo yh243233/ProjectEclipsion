@@ -84,14 +84,7 @@ if (saveRepository.TryLoad(out var initialSaveData) && initialSaveData is not nu
 
 while (true)
 {
-  if (!Console.IsInputRedirected && !Console.IsOutputRedirected)
-  {
-    Console.Clear();
-  }
-
   gameLoop.RunOnce();
-  Console.WriteLine();
-  Console.WriteLine("WASDで移動 / IJKLで部屋移動 / Mでミニマップ / 1-6で武器切り替え / 7-9でスキル解放 / Spaceで発射 / Gで取得 / Eで装備 / B/F/H/C/Vで状態異常 / P/F5でSave / O/F9でLoad / Tで10ダメージ / QまたはEscで終了");
 
   var direction = keyboardInput.ReadDirection();
   if (direction.ShouldExit)

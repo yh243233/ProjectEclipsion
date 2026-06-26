@@ -1,137 +1,130 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using ProjectEclipsion.Core;
-using ProjectEclipsion.Core.Gameplay.Skills;
-using ProjectEclipsion.Core.Gameplay.World.Maps;
 using ProjectEclipsion.Core.Rendering;
 
 namespace ProjectEclipsion.App.Rendering;
 
 public sealed class ConsoleRenderer : IRenderer
 {
+    private const int LeftWidth = 30;
+    private const int RightWidth = 31;
     private readonly HudRenderer hudRenderer = new();
+    private readonly GameScreenRenderer gameScreenRenderer = new();
+    private readonly BattleLogRenderer battleLogRenderer = new();
+    private readonly MiniMapRenderer miniMapRenderer = new();
+    private readonly InputGuideRenderer inputGuideRenderer = new();
 
     public void Render(GameState gameState)
     {
         ArgumentNullException.ThrowIfNull(gameState);
 
-        Console.WriteLine(gameState.Title);
-        Console.WriteLine($"Player座標: X={gameState.Player.X}, Y={gameState.Player.Y}");
-        Console.WriteLine($"HP: {gameState.Player.Stats.Health}/{gameState.Player.Stats.MaxHealth}");
-        Console.WriteLine($"Shield: {gameState.Player.Stats.Shield}/{gameState.Player.Stats.MaxShield}");
-        Console.WriteLine($"IsDead: {gameState.Player.IsDead}");
-        Console.WriteLine($"Score: {gameState.Score}");
+        if (!Console.IsOutputRedirected)
+        {
+            Console.SetCursorPosition(0, 0);
+        }
+
+        foreach (var line in BuildLines(gameState))
+        {
+            Console.WriteLine(line);
+        }
+    }
+
+    public IReadOnlyList<string> BuildLines(GameState gameState)
+    {
+        ArgumentNullException.ThrowIfNull(gameState);
+
+        var lines = new List<string>
+        {
+            Border(LeftWidth + RightWidth + 3),
+            FullWidthLine(gameState.Title),
+            Border(LeftWidth + RightWidth + 3),
+        };
+
+        lines.AddRange(TwoColumnSection(
+            "MAP",
+            gameScreenRenderer.BuildLines(gameState),
+            "HUD",
+            BuildHudLines(gameState),
+            leftHeight: 13,
+            rightHeight: 13));
+
+        lines.AddRange(TwoColumnSection(
+            "MiniMap",
+            miniMapRenderer.BuildLines(gameState.GameMap),
+            "Battle Log",
+            battleLogRenderer.BuildLines(gameState.RecentDamageLogs),
+            leftHeight: 5,
+            rightHeight: 5));
+
+        foreach (var inputGuideLine in inputGuideRenderer.BuildLines())
+        {
+            lines.Add(FullWidthLine(inputGuideLine));
+        }
+
+        lines.Add(Border(LeftWidth + RightWidth + 3));
+        return lines;
+    }
+
+    private IReadOnlyList<string> BuildHudLines(GameState gameState)
+    {
+        var lines = hudRenderer.BuildLines(gameState).ToList();
+
+        lines.Add($"Room: {gameState.GameMap.CurrentRoom.Name}");
+        lines.Add($"Biome: {gameState.GameMap.CurrentRoom.BiomeType}");
+        lines.Add($"EnemyCount: {gameState.GameMap.CurrentRoom.EnemyCount}");
+        lines.Add($"Treasure: {gameState.GameMap.CurrentRoom.TreasureChestCount}");
         if (!string.IsNullOrWhiteSpace(gameState.SaveMessage))
         {
-            Console.WriteLine(gameState.SaveMessage);
+            lines.Add(gameState.SaveMessage);
         }
 
-        hudRenderer.Render(gameState);
-        Console.WriteLine($"SkillPoint: {gameState.Player.SkillPoint}");
-        Console.WriteLine($"Combat Skills: {FormatUnlockedSkills(gameState.CombatSkillTree)}");
-        Console.WriteLine($"Tech Skills: {FormatUnlockedSkills(gameState.TechSkillTree)}");
-        Console.WriteLine($"Survival Skills: {FormatUnlockedSkills(gameState.SurvivalSkillTree)}");
-        Console.WriteLine($"Current Room: {gameState.GameMap.CurrentRoom.Name}");
-        Console.WriteLine($"Biome: {gameState.GameMap.CurrentRoom.BiomeType}");
-        Console.WriteLine($"Room Position: ({gameState.GameMap.CurrentRoom.X}, {gameState.GameMap.CurrentRoom.Y})");
-        Console.WriteLine($"EnemyCount: {gameState.GameMap.CurrentRoom.EnemyCount}");
-        Console.WriteLine($"TreasureChestCount: {gameState.GameMap.CurrentRoom.TreasureChestCount}");
-        Console.WriteLine($"Exits: {FormatExits(gameState.GameMap.CurrentRoom)}");
-        if (gameState.GameMap.IsMiniMapVisible)
-        {
-            RenderMiniMap(gameState.GameMap);
-        }
-
-        Console.WriteLine($"FireRate: {gameState.CurrentWeapon.Stats.FireRate:0.0}");
-        Console.WriteLine($"ReloadTime: {gameState.CurrentWeapon.Stats.ReloadTime:0.0}");
-        Console.WriteLine($"BulletSpeed: {gameState.CurrentWeapon.Stats.BulletSpeed:0.0}");
-        Console.WriteLine($"Inventory: {gameState.Inventory.Count} item(s)");
-        if (gameState.Equipment.EquippedItem is null)
-        {
-            Console.WriteLine("Equipped Item: None");
-        }
-        else
-        {
-            Console.WriteLine($"Equipped Item: {gameState.Equipment.EquippedItem.Name} / {gameState.Equipment.EquippedItem.Rarity}");
-        }
-
-        foreach (var item in gameState.DroppedItems)
-        {
-            Console.WriteLine($"Dropped Item: {item.Name} / {item.Rarity}");
-        }
-
-        foreach (var bullet in gameState.Bullets)
-        {
-            Console.WriteLine($"Bullet: ({bullet.X}, {bullet.Y}) Type: {bullet.Type} Damage: {bullet.Damage} Speed: {bullet.Speed}");
-        }
-
-        foreach (var enemy in gameState.Enemies)
-        {
-            Console.WriteLine($"Enemy: ({enemy.X}, {enemy.Y}) HP: {enemy.Health} State: {enemy.AiState} Status: {FormatStatusEffects(enemy)}");
-        }
+        return lines;
     }
 
-    private static string FormatStatusEffects(ProjectEclipsion.Core.Gameplay.Enemies.Enemy enemy)
+    private static IReadOnlyList<string> TwoColumnSection(
+        string leftTitle,
+        IReadOnlyList<string> leftLines,
+        string rightTitle,
+        IReadOnlyList<string> rightLines,
+        int leftHeight,
+        int rightHeight)
     {
-        if (enemy.StatusEffects.Count == 0)
+        var height = Math.Max(leftHeight, rightHeight);
+        var lines = new List<string>
         {
-            return "None";
+            $"| {Fit(leftTitle, LeftWidth)} | {Fit(rightTitle, RightWidth)} |",
+        };
+
+        for (var i = 0; i < height; i++)
+        {
+            var left = i < leftLines.Count ? leftLines[i] : string.Empty;
+            var right = i < rightLines.Count ? rightLines[i] : string.Empty;
+            lines.Add($"| {Fit(left, LeftWidth)} | {Fit(right, RightWidth)} |");
         }
 
-        return string.Join(", ", enemy.StatusEffects.Effects.Select(effect => $"{effect.Type}({effect.Duration})"));
+        lines.Add(Border(LeftWidth + RightWidth + 3));
+        return lines;
     }
 
-    private static string FormatUnlockedSkills(SkillTree skillTree)
+    private static string FullWidthLine(string text)
     {
-        if (skillTree.UnlockedNodes.Count == 0)
-        {
-            return "None";
-        }
-
-        return string.Join(", ", skillTree.UnlockedNodes.Select(node => node.Name));
+        return $"| {Fit(text, LeftWidth + RightWidth + 3)} |";
     }
 
-    private static string FormatExits(ProjectEclipsion.Core.Gameplay.World.Rooms.Room room)
+    private static string Border(int innerWidth)
     {
-        if (room.Connections.Count == 0)
-        {
-            return "None";
-        }
-
-        return string.Join(", ", room.Connections.Keys.OrderBy(direction => direction.ToString()));
+        return $"+{new string('-', innerWidth + 2)}+";
     }
 
-    private static void RenderMiniMap(GameMap gameMap)
+    private static string Fit(string text, int width)
     {
-        var minX = gameMap.Rooms.Min(room => room.X);
-        var maxX = gameMap.Rooms.Max(room => room.X);
-        var minY = gameMap.Rooms.Min(room => room.Y);
-        var maxY = gameMap.Rooms.Max(room => room.Y);
-
-        Console.WriteLine("MiniMap:");
-        for (var y = minY; y <= maxY; y++)
+        if (text.Length > width)
         {
-            var cells = Enumerable.Range(minX, maxX - minX + 1)
-                .Select(x => FormatMiniMapCell(gameMap, x, y));
-            Console.WriteLine(string.Join(" ", cells));
+            return text[..width];
         }
 
-        Console.WriteLine("Legend: P=Current, V=Visited, ?=Unvisited, blank=No room");
-    }
-
-    private static string FormatMiniMapCell(GameMap gameMap, int x, int y)
-    {
-        var room = gameMap.FindRoomAt(x, y);
-        if (room is null)
-        {
-            return "[ ]";
-        }
-
-        if (room == gameMap.CurrentRoom)
-        {
-            return "[P]";
-        }
-
-        return room.IsVisited ? "[V]" : "[?]";
+        return text.PadRight(width);
     }
 }
