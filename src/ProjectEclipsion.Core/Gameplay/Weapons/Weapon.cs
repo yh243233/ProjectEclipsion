@@ -27,6 +27,8 @@ public sealed class Weapon
 
     public WeaponStats Stats { get; }
 
+    public BulletType BulletType => GetBulletType();
+
     public Bullet Fire(int x, int y, int directionX, int directionY)
     {
         var bulletType = GetBulletType();

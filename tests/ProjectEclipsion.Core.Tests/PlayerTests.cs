@@ -14,6 +14,8 @@ public sealed class PlayerTests
         Assert.Equal(100, stats.Health);
         Assert.Equal(25, stats.MaxShield);
         Assert.Equal(25, stats.Shield);
+        Assert.Equal(100, stats.MaxEnergy);
+        Assert.Equal(100, stats.Energy);
         Assert.Equal(2, stats.MoveSpeed);
     }
 

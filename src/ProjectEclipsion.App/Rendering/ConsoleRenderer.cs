@@ -9,6 +9,8 @@ namespace ProjectEclipsion.App.Rendering;
 
 public sealed class ConsoleRenderer : IRenderer
 {
+    private readonly HudRenderer hudRenderer = new();
+
     public void Render(GameState gameState)
     {
         ArgumentNullException.ThrowIfNull(gameState);
@@ -19,6 +21,7 @@ public sealed class ConsoleRenderer : IRenderer
         Console.WriteLine($"Shield: {gameState.Player.Stats.Shield}/{gameState.Player.Stats.MaxShield}");
         Console.WriteLine($"IsDead: {gameState.Player.IsDead}");
         Console.WriteLine($"Score: {gameState.Score}");
+        hudRenderer.Render(gameState);
         Console.WriteLine($"SkillPoint: {gameState.Player.SkillPoint}");
         Console.WriteLine($"Combat Skills: {FormatUnlockedSkills(gameState.CombatSkillTree)}");
         Console.WriteLine($"Tech Skills: {FormatUnlockedSkills(gameState.TechSkillTree)}");
@@ -34,8 +37,6 @@ public sealed class ConsoleRenderer : IRenderer
             RenderMiniMap(gameState.GameMap);
         }
 
-        Console.WriteLine($"Weapon: {gameState.CurrentWeapon.Name} / {gameState.CurrentWeapon.Category}");
-        Console.WriteLine($"Damage: {gameState.CurrentWeapon.Stats.Damage}");
         Console.WriteLine($"FireRate: {gameState.CurrentWeapon.Stats.FireRate:0.0}");
         Console.WriteLine($"ReloadTime: {gameState.CurrentWeapon.Stats.ReloadTime:0.0}");
         Console.WriteLine($"BulletSpeed: {gameState.CurrentWeapon.Stats.BulletSpeed:0.0}");

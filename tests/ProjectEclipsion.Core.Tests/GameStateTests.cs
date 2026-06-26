@@ -49,6 +49,31 @@ public sealed class GameStateTests
     }
 
     [Fact]
+    public void AddDamageLog_GameStateにダメージログを追加できる()
+    {
+        var gameState = new GameState();
+
+        gameState.AddDamageLog("Enemy took 10 damage");
+
+        Assert.Contains("Enemy took 10 damage", gameState.RecentDamageLogs);
+    }
+
+    [Fact]
+    public void AddDamageLog_最大件数を超えた場合に古いログを削除できる()
+    {
+        var gameState = new GameState();
+
+        for (var i = 1; i <= 6; i++)
+        {
+            gameState.AddDamageLog($"Log {i}");
+        }
+
+        Assert.Equal(5, gameState.RecentDamageLogs.Count);
+        Assert.DoesNotContain("Log 1", gameState.RecentDamageLogs);
+        Assert.Contains("Log 6", gameState.RecentDamageLogs);
+    }
+
+    [Fact]
     public void MovePlayer_GameState経由でPlayerを移動する()
     {
         var gameState = new GameState();
