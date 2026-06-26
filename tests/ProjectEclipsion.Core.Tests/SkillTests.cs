@@ -17,6 +17,15 @@ public sealed class SkillTests
         Assert.Equal(1, node.Cost);
         Assert.False(node.IsUnlocked);
         Assert.Equal(SkillTreeType.Combat, node.TreeType);
+        Assert.Equal(0, node.Cooldown);
+    }
+
+    [Fact]
+    public void SkillTreeNode_Cooldownを表示用に参照できる()
+    {
+        var node = new SkillTreeNode("tech_shield", "Shield", "シールド制御を強化する。", cost: 1, SkillTreeType.Tech, cooldown: 3);
+
+        Assert.Equal(3, node.Cooldown);
     }
 
     [Fact]

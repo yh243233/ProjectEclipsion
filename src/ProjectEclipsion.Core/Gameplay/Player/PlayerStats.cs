@@ -7,7 +7,7 @@ public sealed class PlayerStats
 {
     // ここがプレイヤーステータスのクラス内部。
     // PlayerStatsの様なクラス名とメソッド名が同じな場合、コンストラクタ扱いされてクラス宣言時に自動的に呼び出される。
-    public PlayerStats(int maxHealth, int maxShield, int moveSpeed)
+    public PlayerStats(int maxHealth, int maxShield, int moveSpeed, int maxEnergy = 100)
     {
         if (maxHealth <= 0)
         {
@@ -24,12 +24,19 @@ public sealed class PlayerStats
             throw new ArgumentOutOfRangeException(nameof(moveSpeed), "移動速度は1以上である必要があります。");
         }
 
+        if (maxEnergy < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(maxEnergy), "最大Energyは0以上である必要があります。");
+        }
+
         // 基本的にプレイヤーステータスはここで初期化される。
         // 最大値とデフォルトの値を同じにしている。
         MaxHealth = maxHealth;
         Health = maxHealth;
         MaxShield = maxShield;
         Shield = maxShield;
+        MaxEnergy = maxEnergy;
+        Energy = maxEnergy;
         MoveSpeed = moveSpeed;
     }
 
@@ -41,6 +48,10 @@ public sealed class PlayerStats
     public int MaxShield { get; }
 
     public int Shield { get; private set; }
+
+    public int MaxEnergy { get; }
+
+    public int Energy { get; private set; }
 
     public int MoveSpeed { get; }
 
@@ -56,6 +67,11 @@ public sealed class PlayerStats
     public void SetShield(int value)
     {
         Shield = Clamp(value, 0, MaxShield);
+    }
+
+    public void SetEnergy(int value)
+    {
+        Energy = Clamp(value, 0, MaxEnergy);
     }
     // Healthが最低値を切ってないかの確認と、最大値を超えてないかの確認をしている。
     public void RestoreHealth(int amount)
@@ -77,6 +93,16 @@ public sealed class PlayerStats
         }
 
         SetShield(Shield + amount);
+    }
+
+    public void RestoreEnergy(int amount)
+    {
+        if (amount < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(amount), "Energy回復量は0以上である必要があります。");
+        }
+
+        SetEnergy(Energy + amount);
     }
 
     // amountの内容が0以下の場合例をスローする。

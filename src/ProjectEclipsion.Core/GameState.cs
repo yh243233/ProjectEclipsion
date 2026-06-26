@@ -14,6 +14,7 @@ namespace ProjectEclipsion.Core;
 public sealed class GameState
 {
     private const int ScorePerEnemyDefeat = 100;
+    private const int MaxDamageLogCount = 5;
 
     public GameState()
     {
@@ -28,6 +29,7 @@ public sealed class GameState
         Weapons = CreateInitialWeapons();
         CurrentWeapon = Weapons[0];
         Bullets = new List<Bullet>();
+        RecentDamageLogs = new List<string>();
         DroppedItems = new List<Item>();
         Inventory = new Inventory();
         Equipment = new Equipment();
@@ -56,6 +58,8 @@ public sealed class GameState
 
     public List<Bullet> Bullets { get; }
 
+    public List<string> RecentDamageLogs { get; }
+
     public List<Enemy> Enemies { get; }
 
     public List<Item> DroppedItems { get; }
@@ -81,6 +85,7 @@ public sealed class GameState
     public void DamagePlayer(int amount)
     {
         Player.TakeDamage(amount);
+        AddDamageLog($"Player took {amount} damage");
     }
 
     public void FireCurrentWeapon()
@@ -172,6 +177,7 @@ public sealed class GameState
 
                 var wasDead = enemy.IsDead;
                 enemy.TakeDamage(bullet.Damage);
+                AddDamageLog($"Enemy took {bullet.Damage} damage");
                 if (!wasDead && enemy.IsDead)
                 {
                     Score += ScorePerEnemyDefeat;
@@ -185,6 +191,20 @@ public sealed class GameState
 
                 break;
             }
+        }
+    }
+
+    public void AddDamageLog(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return;
+        }
+
+        RecentDamageLogs.Add(message);
+        while (RecentDamageLogs.Count > MaxDamageLogCount)
+        {
+            RecentDamageLogs.RemoveAt(0);
         }
     }
 

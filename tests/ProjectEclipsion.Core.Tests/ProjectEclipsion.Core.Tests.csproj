@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\ProjectEclipsion.App\ProjectEclipsion.App.csproj" />
     <ProjectReference Include="..\..\src\ProjectEclipsion.Core\ProjectEclipsion.Core.csproj" />
   </ItemGroup>
 </Project>
