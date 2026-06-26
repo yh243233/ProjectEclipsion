@@ -39,6 +39,10 @@ public sealed class Room
 
     public bool IsVisited { get; private set; }
 
+    public int EnemyCount { get; private set; }
+
+    public int TreasureChestCount { get; private set; }
+
     public IReadOnlyDictionary<RoomDirection, string> Connections => connections;
 
     public void Connect(RoomDirection direction, string roomId)
@@ -59,5 +63,21 @@ public sealed class Room
     public void MarkVisited()
     {
         IsVisited = true;
+    }
+
+    public void SetPlacementCounts(int enemyCount, int treasureChestCount)
+    {
+        if (enemyCount < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(enemyCount), "EnemyCountは0以上である必要があります。");
+        }
+
+        if (treasureChestCount < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(treasureChestCount), "TreasureChestCountは0以上である必要があります。");
+        }
+
+        EnemyCount = enemyCount;
+        TreasureChestCount = treasureChestCount;
     }
 }

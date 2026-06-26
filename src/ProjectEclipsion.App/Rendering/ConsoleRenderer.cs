@@ -26,6 +26,9 @@ public sealed class ConsoleRenderer : IRenderer
         Console.WriteLine($"Current Room: {gameState.GameMap.CurrentRoom.Name}");
         Console.WriteLine($"Biome: {gameState.GameMap.CurrentRoom.BiomeType}");
         Console.WriteLine($"Room Position: ({gameState.GameMap.CurrentRoom.X}, {gameState.GameMap.CurrentRoom.Y})");
+        Console.WriteLine($"EnemyCount: {gameState.GameMap.CurrentRoom.EnemyCount}");
+        Console.WriteLine($"TreasureChestCount: {gameState.GameMap.CurrentRoom.TreasureChestCount}");
+        Console.WriteLine($"Exits: {FormatExits(gameState.GameMap.CurrentRoom)}");
         if (gameState.GameMap.IsMiniMapVisible)
         {
             RenderMiniMap(gameState.GameMap);
@@ -80,6 +83,16 @@ public sealed class ConsoleRenderer : IRenderer
         }
 
         return string.Join(", ", skillTree.UnlockedNodes.Select(node => node.Name));
+    }
+
+    private static string FormatExits(ProjectEclipsion.Core.Gameplay.World.Rooms.Room room)
+    {
+        if (room.Connections.Count == 0)
+        {
+            return "None";
+        }
+
+        return string.Join(", ", room.Connections.Keys.OrderBy(direction => direction.ToString()));
     }
 
     private static void RenderMiniMap(GameMap gameMap)
