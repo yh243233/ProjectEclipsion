@@ -83,7 +83,7 @@ while (true)
 
   gameLoop.RunOnce();
   Console.WriteLine();
-  Console.WriteLine("WASDで移動 / 1-6で武器切り替え / 7-9でスキル解放 / Spaceで発射 / Gで取得 / Eで装備 / B/F/H/C/Vで状態異常 / Tで10ダメージ / QまたはEscで終了");
+  Console.WriteLine("WASDで移動 / IJKLで部屋移動 / Mでミニマップ / 1-6で武器切り替え / 7-9でスキル解放 / Spaceで発射 / Gで取得 / Eで装備 / B/F/H/C/Vで状態異常 / Tで10ダメージ / QまたはEscで終了");
 
   var direction = keyboardInput.ReadDirection();
   if (direction.ShouldExit)
@@ -124,6 +124,16 @@ while (true)
   if (direction.SkillTreeType.HasValue)
   {
     gameState.UnlockFirstSkill(direction.SkillTreeType.Value);
+  }
+
+  if (direction.RoomDirection.HasValue)
+  {
+    gameState.MoveRoom(direction.RoomDirection.Value);
+  }
+
+  if (direction.ShouldToggleMiniMap)
+  {
+    gameState.ToggleMiniMap();
   }
 
   //  public void FireCurrentWeapon()

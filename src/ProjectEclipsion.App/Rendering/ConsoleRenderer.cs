@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using ProjectEclipsion.Core;
 using ProjectEclipsion.Core.Gameplay.Skills;
+using ProjectEclipsion.Core.Gameplay.World.Maps;
 using ProjectEclipsion.Core.Rendering;
 
 namespace ProjectEclipsion.App.Rendering;
@@ -22,6 +23,14 @@ public sealed class ConsoleRenderer : IRenderer
         Console.WriteLine($"Combat Skills: {FormatUnlockedSkills(gameState.CombatSkillTree)}");
         Console.WriteLine($"Tech Skills: {FormatUnlockedSkills(gameState.TechSkillTree)}");
         Console.WriteLine($"Survival Skills: {FormatUnlockedSkills(gameState.SurvivalSkillTree)}");
+        Console.WriteLine($"Current Room: {gameState.GameMap.CurrentRoom.Name}");
+        Console.WriteLine($"Biome: {gameState.GameMap.CurrentRoom.BiomeType}");
+        Console.WriteLine($"Room Position: ({gameState.GameMap.CurrentRoom.X}, {gameState.GameMap.CurrentRoom.Y})");
+        if (gameState.GameMap.IsMiniMapVisible)
+        {
+            RenderMiniMap(gameState.GameMap);
+        }
+
         Console.WriteLine($"Weapon: {gameState.CurrentWeapon.Name} / {gameState.CurrentWeapon.Category}");
         Console.WriteLine($"Damage: {gameState.CurrentWeapon.Stats.Damage}");
         Console.WriteLine($"FireRate: {gameState.CurrentWeapon.Stats.FireRate:0.0}");
@@ -71,5 +80,39 @@ public sealed class ConsoleRenderer : IRenderer
         }
 
         return string.Join(", ", skillTree.UnlockedNodes.Select(node => node.Name));
+    }
+
+    private static void RenderMiniMap(GameMap gameMap)
+    {
+        var minX = gameMap.Rooms.Min(room => room.X);
+        var maxX = gameMap.Rooms.Max(room => room.X);
+        var minY = gameMap.Rooms.Min(room => room.Y);
+        var maxY = gameMap.Rooms.Max(room => room.Y);
+
+        Console.WriteLine("MiniMap:");
+        for (var y = minY; y <= maxY; y++)
+        {
+            var cells = Enumerable.Range(minX, maxX - minX + 1)
+                .Select(x => FormatMiniMapCell(gameMap, x, y));
+            Console.WriteLine(string.Join(" ", cells));
+        }
+
+        Console.WriteLine("Legend: P=Current, V=Visited, ?=Unvisited, blank=No room");
+    }
+
+    private static string FormatMiniMapCell(GameMap gameMap, int x, int y)
+    {
+        var room = gameMap.FindRoomAt(x, y);
+        if (room is null)
+        {
+            return "[ ]";
+        }
+
+        if (room == gameMap.CurrentRoom)
+        {
+            return "[P]";
+        }
+
+        return room.IsVisited ? "[V]" : "[?]";
     }
 }
