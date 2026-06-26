@@ -43,6 +43,15 @@ public sealed class HudRendererTests
     }
 
     [Fact]
+    public void FormatBar_最大値超過時でもバー表示が破綻しない()
+    {
+        var bar = HudRenderer.FormatBar("HP", current: 150, max: 100);
+
+        Assert.Contains("[##########]", bar);
+        Assert.Contains("150/100", bar);
+    }
+
+    [Fact]
     public void FormatCooldown_Cooldownを表示用に参照できる()
     {
         Assert.Equal("Ready", HudRenderer.FormatCooldown(0));
