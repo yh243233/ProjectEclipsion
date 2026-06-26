@@ -3,7 +3,9 @@ using ProjectEclipsion.App.Rendering;
 using ProjectEclipsion.Core;
 using ProjectEclipsion.Core.Gameplay.Player;
 using ProjectEclipsion.Core.Gameplay.Weapons;
+using ProjectEclipsion.Core.Save;
 using System;
+using System.IO;
 
 // namespaceの宣言はプロジェクト/フォルダの順になる
 
@@ -33,6 +35,12 @@ var gameState = new GameState();
 var renderer = new ConsoleRenderer();
 var gameLoop = new GameLoop(gameState, renderer);
 var keyboardInput = new KeyboardInput();
+var saveRepository = new JsonSaveRepository(Path.Combine(Environment.CurrentDirectory, "save.json"));
+if (saveRepository.TryLoad(out var initialSaveData) && initialSaveData is not null)
+{
+  gameState.ApplySaveData(initialSaveData);
+  gameState.SetSaveMessage("Load: Success");
+}
 
 // 2026-06-06
 // ステップ1-3
@@ -83,7 +91,7 @@ while (true)
 
   gameLoop.RunOnce();
   Console.WriteLine();
-  Console.WriteLine("WASDで移動 / IJKLで部屋移動 / Mでミニマップ / 1-6で武器切り替え / 7-9でスキル解放 / Spaceで発射 / Gで取得 / Eで装備 / B/F/H/C/Vで状態異常 / Tで10ダメージ / QまたはEscで終了");
+  Console.WriteLine("WASDで移動 / IJKLで部屋移動 / Mでミニマップ / 1-6で武器切り替え / 7-9でスキル解放 / Spaceで発射 / Gで取得 / Eで装備 / B/F/H/C/Vで状態異常 / P/F5でSave / O/F9でLoad / Tで10ダメージ / QまたはEscで終了");
 
   var direction = keyboardInput.ReadDirection();
   if (direction.ShouldExit)
@@ -134,6 +142,25 @@ while (true)
   if (direction.ShouldToggleMiniMap)
   {
     gameState.ToggleMiniMap();
+  }
+
+  if (direction.ShouldSave)
+  {
+    saveRepository.Save(gameState.ToSaveData());
+    gameState.SetSaveMessage("Save: Success");
+  }
+
+  if (direction.ShouldLoad)
+  {
+    if (saveRepository.TryLoad(out var saveData) && saveData is not null)
+    {
+      gameState.ApplySaveData(saveData);
+      gameState.SetSaveMessage("Load: Success");
+    }
+    else
+    {
+      gameState.SetSaveMessage("Load: save.json not found");
+    }
   }
 
   //  public void FireCurrentWeapon()

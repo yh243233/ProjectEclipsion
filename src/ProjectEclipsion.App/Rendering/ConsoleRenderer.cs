@@ -21,6 +21,11 @@ public sealed class ConsoleRenderer : IRenderer
         Console.WriteLine($"Shield: {gameState.Player.Stats.Shield}/{gameState.Player.Stats.MaxShield}");
         Console.WriteLine($"IsDead: {gameState.Player.IsDead}");
         Console.WriteLine($"Score: {gameState.Score}");
+        if (!string.IsNullOrWhiteSpace(gameState.SaveMessage))
+        {
+            Console.WriteLine(gameState.SaveMessage);
+        }
+
         hudRenderer.Render(gameState);
         Console.WriteLine($"SkillPoint: {gameState.Player.SkillPoint}");
         Console.WriteLine($"Combat Skills: {FormatUnlockedSkills(gameState.CombatSkillTree)}");

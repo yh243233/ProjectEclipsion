@@ -1,0 +1,17 @@
+{
+  "PlayerX": 1,
+  "PlayerY": 0,
+  "PlayerHp": 100,
+  "PlayerShield": 40,
+  "PlayerEnergy": 100,
+  "Score": 0,
+  "CurrentWeaponName": "Impact Rocket",
+  "UnlockedWeaponNames": [
+    "Starter Assault",
+    "Scatter Shotgun",
+    "Longshot Sniper",
+    "Focus Beam",
+    "Impact Rocket",
+    "Support Drone"
+  ]
+}

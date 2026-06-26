@@ -1,5 +1,6 @@
 using ProjectEclipsion.Core.Gameplay.Player;
 using System.Collections.Generic;
+using System.Linq;
 using ProjectEclipsion.Core.Gameplay.Enemies;
 using ProjectEclipsion.Core.Gameplay.Items;
 using ProjectEclipsion.Core.Gameplay.Skills;
@@ -8,6 +9,7 @@ using ProjectEclipsion.Core.Gameplay.Weapons;
 using ProjectEclipsion.Core.Gameplay.World.Generation;
 using ProjectEclipsion.Core.Gameplay.World.Maps;
 using ProjectEclipsion.Core.Gameplay.World.Rooms;
+using ProjectEclipsion.Core.Save;
 
 namespace ProjectEclipsion.Core;
 
@@ -15,6 +17,7 @@ public sealed class GameState
 {
     private const int ScorePerEnemyDefeat = 100;
     private const int MaxDamageLogCount = 5;
+    private readonly HashSet<string> unlockedWeaponNames;
 
     public GameState()
     {
@@ -27,6 +30,7 @@ public sealed class GameState
         Score = 0;
         Player = new Player(new PlayerStats(maxHealth: 100, maxShield: 50, moveSpeed: 1));
         Weapons = CreateInitialWeapons();
+        unlockedWeaponNames = new HashSet<string>(Weapons.Select(weapon => weapon.Name));
         CurrentWeapon = Weapons[0];
         Bullets = new List<Bullet>();
         RecentDamageLogs = new List<string>();
@@ -56,9 +60,13 @@ public sealed class GameState
 
     public Weapon CurrentWeapon { get; private set; }
 
+    public IReadOnlyCollection<string> UnlockedWeaponNames => unlockedWeaponNames;
+
     public List<Bullet> Bullets { get; }
 
     public List<string> RecentDamageLogs { get; }
+
+    public string SaveMessage { get; private set; } = string.Empty;
 
     public List<Enemy> Enemies { get; }
 
@@ -152,6 +160,49 @@ public sealed class GameState
     public void ToggleMiniMap()
     {
         GameMap.ToggleMiniMap();
+    }
+
+    public SaveData ToSaveData()
+    {
+        return new SaveData
+        {
+            PlayerX = Player.X,
+            PlayerY = Player.Y,
+            PlayerHp = Player.Stats.Health,
+            PlayerShield = Player.Stats.Shield,
+            PlayerEnergy = Player.Stats.Energy,
+            Score = Score,
+            CurrentWeaponName = CurrentWeapon.Name,
+            UnlockedWeaponNames = unlockedWeaponNames.ToList(),
+        };
+    }
+
+    public void ApplySaveData(SaveData saveData)
+    {
+        System.ArgumentNullException.ThrowIfNull(saveData);
+
+        Player.SetPosition(saveData.PlayerX, saveData.PlayerY);
+        Player.SetHealth(saveData.PlayerHp);
+        Player.SetShield(saveData.PlayerShield);
+        Player.SetEnergy(saveData.PlayerEnergy);
+        Score = saveData.Score;
+
+        unlockedWeaponNames.Clear();
+        foreach (var weaponName in saveData.UnlockedWeaponNames.Where(name => !string.IsNullOrWhiteSpace(name)))
+        {
+            unlockedWeaponNames.Add(weaponName);
+        }
+
+        var restoredWeapon = Weapons.FirstOrDefault(weapon => weapon.Name == saveData.CurrentWeaponName);
+        if (restoredWeapon is not null)
+        {
+            CurrentWeapon = restoredWeapon;
+        }
+    }
+
+    public void SetSaveMessage(string message)
+    {
+        SaveMessage = message;
     }
 
     private void HandleBulletEnemyCollisions()

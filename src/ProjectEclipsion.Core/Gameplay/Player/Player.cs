@@ -33,6 +33,12 @@ public sealed class Player
         Y += directionY * Stats.MoveSpeed;
     }
 
+    public void SetPosition(int x, int y)
+    {
+        X = x;
+        Y = y;
+    }
+
     public void SetHealth(int value)
     {
         Stats.SetHealth(value);
@@ -46,6 +52,11 @@ public sealed class Player
     public void SetShield(int value)
     {
         Stats.SetShield(value);
+    }
+
+    public void SetEnergy(int value)
+    {
+        Stats.SetEnergy(value);
     }
 
     public void RestoreShield(int amount)

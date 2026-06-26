@@ -10,7 +10,7 @@ public sealed class KeyboardInput
 {
     // ここの箇所はReadDirectionは戻り値の型ではなくメソッド名である。
     // int DirectionX, int DirectionY, bool ShouldExitの箇所のintなどは引数の型宣言ではなく返り値の型宣言である。
-    public (int DirectionX, int DirectionY, bool ShouldExit, bool ShouldDamagePlayer, bool ShouldFireBullet, int WeaponNumber, bool ShouldPickUpItem, bool ShouldEquipItem, StatusEffectType? StatusEffectType, SkillTreeType? SkillTreeType, RoomDirection? RoomDirection, bool ShouldToggleMiniMap) ReadDirection()
+    public (int DirectionX, int DirectionY, bool ShouldExit, bool ShouldDamagePlayer, bool ShouldFireBullet, int WeaponNumber, bool ShouldPickUpItem, bool ShouldEquipItem, StatusEffectType? StatusEffectType, SkillTreeType? SkillTreeType, RoomDirection? RoomDirection, bool ShouldToggleMiniMap, bool ShouldSave, bool ShouldLoad) ReadDirection()
     {
         // ブレークポイントでのデバッグがうまくいかないので調べる。
         // todo:Console.IsInputRedirectedはコンソールの入力がリダイレクトされているかどうかを示すプロパティで、trueの場合はリダイレクトされていることを意味する。
@@ -31,7 +31,7 @@ public sealed class KeyboardInput
             // input < 0 の場合は、入力が終わった／ないと判断して ShouldExit = true を返します。
             // そうでなければ、その文字を ToDirection に渡して移動方向や終了フラグを返します。
             return input < 0
-                ? (0, 0, true, false, false, 0, false, false, null, null, null, false)
+                ? CreateCommand(shouldExit: true)
             // ToDirectionは下の箇所で定義されているメソッドで、char型の引数を受け取り、移動方向と終了フラグを返すものです。
                 : ToDirection((char)input);
             // つまりまとめると、リダイレクトされた入力がある場合は、キーボードからの入力を待たずに、リダイレクトされた入力を処理してゲームを終了するか、移動方向を決定することになる。
@@ -86,46 +86,50 @@ public sealed class KeyboardInput
           // bool ShouldFireBullet
           // の内容になっている。
 
-            ConsoleKey.W => (0, -1, false, false, false, 0, false, false, null, null, null, false),
-            ConsoleKey.S => (0, 1, false, false, false, 0, false, false, null, null, null, false),
-            ConsoleKey.A => (-1, 0, false, false, false, 0, false, false, null, null, null, false),
-            ConsoleKey.D => (1, 0, false, false, false, 0, false, false, null, null, null, false),
-            ConsoleKey.T => (0, 0, false, true, false, 0, false, false, null, null, null, false),
-            ConsoleKey.G => (0, 0, false, false, false, 0, true, false, null, null, null, false),
-            ConsoleKey.E => (0, 0, false, false, false, 0, false, true, null, null, null, false),
-            ConsoleKey.B => (0, 0, false, false, false, 0, false, false, StatusEffectType.Burn, null, null, false),
-            ConsoleKey.F => (0, 0, false, false, false, 0, false, false, StatusEffectType.Freeze, null, null, false),
-            ConsoleKey.H => (0, 0, false, false, false, 0, false, false, StatusEffectType.Shock, null, null, false),
-            ConsoleKey.C => (0, 0, false, false, false, 0, false, false, StatusEffectType.Corrosion, null, null, false),
-            ConsoleKey.V => (0, 0, false, false, false, 0, false, false, StatusEffectType.Virus, null, null, false),
-            ConsoleKey.I => (0, 0, false, false, false, 0, false, false, null, null, RoomDirection.Up, false),
-            ConsoleKey.K => (0, 0, false, false, false, 0, false, false, null, null, RoomDirection.Down, false),
-            ConsoleKey.J => (0, 0, false, false, false, 0, false, false, null, null, RoomDirection.Left, false),
-            ConsoleKey.L => (0, 0, false, false, false, 0, false, false, null, null, RoomDirection.Right, false),
-            ConsoleKey.M => (0, 0, false, false, false, 0, false, false, null, null, null, true),
-            ConsoleKey.Spacebar => (0, 0, false, false, true, 0, false, false, null, null, null, false),
-            ConsoleKey.D1 => (0, 0, false, false, false, 1, false, false, null, null, null, false),
-            ConsoleKey.D2 => (0, 0, false, false, false, 2, false, false, null, null, null, false),
-            ConsoleKey.D3 => (0, 0, false, false, false, 3, false, false, null, null, null, false),
-            ConsoleKey.D4 => (0, 0, false, false, false, 4, false, false, null, null, null, false),
-            ConsoleKey.D5 => (0, 0, false, false, false, 5, false, false, null, null, null, false),
-            ConsoleKey.D6 => (0, 0, false, false, false, 6, false, false, null, null, null, false),
-            ConsoleKey.D7 => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Combat, null, false),
-            ConsoleKey.D8 => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Tech, null, false),
-            ConsoleKey.D9 => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Survival, null, false),
-            ConsoleKey.NumPad1 => (0, 0, false, false, false, 1, false, false, null, null, null, false),
-            ConsoleKey.NumPad2 => (0, 0, false, false, false, 2, false, false, null, null, null, false),
-            ConsoleKey.NumPad3 => (0, 0, false, false, false, 3, false, false, null, null, null, false),
-            ConsoleKey.NumPad4 => (0, 0, false, false, false, 4, false, false, null, null, null, false),
-            ConsoleKey.NumPad5 => (0, 0, false, false, false, 5, false, false, null, null, null, false),
-            ConsoleKey.NumPad6 => (0, 0, false, false, false, 6, false, false, null, null, null, false),
-            ConsoleKey.NumPad7 => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Combat, null, false),
-            ConsoleKey.NumPad8 => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Tech, null, false),
-            ConsoleKey.NumPad9 => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Survival, null, false),
-            ConsoleKey.Q => (0, 0, true, false, false, 0, false, false, null, null, null, false),
-            ConsoleKey.Escape => (0, 0, true, false, false, 0, false, false, null, null, null, false),
+            ConsoleKey.W => CreateCommand(directionY: -1),
+            ConsoleKey.S => CreateCommand(directionY: 1),
+            ConsoleKey.A => CreateCommand(directionX: -1),
+            ConsoleKey.D => CreateCommand(directionX: 1),
+            ConsoleKey.T => CreateCommand(shouldDamagePlayer: true),
+            ConsoleKey.G => CreateCommand(shouldPickUpItem: true),
+            ConsoleKey.E => CreateCommand(shouldEquipItem: true),
+            ConsoleKey.B => CreateCommand(statusEffectType: StatusEffectType.Burn),
+            ConsoleKey.F => CreateCommand(statusEffectType: StatusEffectType.Freeze),
+            ConsoleKey.H => CreateCommand(statusEffectType: StatusEffectType.Shock),
+            ConsoleKey.C => CreateCommand(statusEffectType: StatusEffectType.Corrosion),
+            ConsoleKey.V => CreateCommand(statusEffectType: StatusEffectType.Virus),
+            ConsoleKey.I => CreateCommand(roomDirection: RoomDirection.Up),
+            ConsoleKey.K => CreateCommand(roomDirection: RoomDirection.Down),
+            ConsoleKey.J => CreateCommand(roomDirection: RoomDirection.Left),
+            ConsoleKey.L => CreateCommand(roomDirection: RoomDirection.Right),
+            ConsoleKey.M => CreateCommand(shouldToggleMiniMap: true),
+            ConsoleKey.P => CreateCommand(shouldSave: true),
+            ConsoleKey.F5 => CreateCommand(shouldSave: true),
+            ConsoleKey.O => CreateCommand(shouldLoad: true),
+            ConsoleKey.F9 => CreateCommand(shouldLoad: true),
+            ConsoleKey.Spacebar => CreateCommand(shouldFireBullet: true),
+            ConsoleKey.D1 => CreateCommand(weaponNumber: 1),
+            ConsoleKey.D2 => CreateCommand(weaponNumber: 2),
+            ConsoleKey.D3 => CreateCommand(weaponNumber: 3),
+            ConsoleKey.D4 => CreateCommand(weaponNumber: 4),
+            ConsoleKey.D5 => CreateCommand(weaponNumber: 5),
+            ConsoleKey.D6 => CreateCommand(weaponNumber: 6),
+            ConsoleKey.D7 => CreateCommand(skillTreeType: SkillTreeType.Combat),
+            ConsoleKey.D8 => CreateCommand(skillTreeType: SkillTreeType.Tech),
+            ConsoleKey.D9 => CreateCommand(skillTreeType: SkillTreeType.Survival),
+            ConsoleKey.NumPad1 => CreateCommand(weaponNumber: 1),
+            ConsoleKey.NumPad2 => CreateCommand(weaponNumber: 2),
+            ConsoleKey.NumPad3 => CreateCommand(weaponNumber: 3),
+            ConsoleKey.NumPad4 => CreateCommand(weaponNumber: 4),
+            ConsoleKey.NumPad5 => CreateCommand(weaponNumber: 5),
+            ConsoleKey.NumPad6 => CreateCommand(weaponNumber: 6),
+            ConsoleKey.NumPad7 => CreateCommand(skillTreeType: SkillTreeType.Combat),
+            ConsoleKey.NumPad8 => CreateCommand(skillTreeType: SkillTreeType.Tech),
+            ConsoleKey.NumPad9 => CreateCommand(skillTreeType: SkillTreeType.Survival),
+            ConsoleKey.Q => CreateCommand(shouldExit: true),
+            ConsoleKey.Escape => CreateCommand(shouldExit: true),
             // ここはそれ以外のキーが押された場合のデフォルトの動作を定義している。今回は移動なし、終了なしの状態を返す。
-            _ => (0, 0, false, false, false, 0, false, false, null, null, null, false),
+            _ => CreateCommand(),
         };
     }
 
@@ -133,39 +137,60 @@ public sealed class KeyboardInput
     // using System;
     // todo:pace ProjectEclipsion.App.Input;の二つしかネームスペース宣言をしていないのになぜリターン時に
     // char.ToUpperInvariantが使えているのかわからない。
-    private static (int DirectionX, int DirectionY, bool ShouldExit, bool ShouldDamagePlayer, bool ShouldFireBullet, int WeaponNumber, bool ShouldPickUpItem, bool ShouldEquipItem, StatusEffectType? StatusEffectType, SkillTreeType? SkillTreeType, RoomDirection? RoomDirection, bool ShouldToggleMiniMap) ToDirection(char input)
+    private static (int DirectionX, int DirectionY, bool ShouldExit, bool ShouldDamagePlayer, bool ShouldFireBullet, int WeaponNumber, bool ShouldPickUpItem, bool ShouldEquipItem, StatusEffectType? StatusEffectType, SkillTreeType? SkillTreeType, RoomDirection? RoomDirection, bool ShouldToggleMiniMap, bool ShouldSave, bool ShouldLoad) ToDirection(char input)
     {
         return char.ToUpperInvariant(input) switch
         {
-            'W' => (0, -1, false, false, false, 0, false, false, null, null, null, false),
-            'S' => (0, 1, false, false, false, 0, false, false, null, null, null, false),
-            'A' => (-1, 0, false, false, false, 0, false, false, null, null, null, false),
-            'D' => (1, 0, false, false, false, 0, false, false, null, null, null, false),
-            'T' => (0, 0, false, true, false, 0, false, false, null, null, null, false),
-            'G' => (0, 0, false, false, false, 0, true, false, null, null, null, false),
-            'E' => (0, 0, false, false, false, 0, false, true, null, null, null, false),
-            'B' => (0, 0, false, false, false, 0, false, false, StatusEffectType.Burn, null, null, false),
-            'F' => (0, 0, false, false, false, 0, false, false, StatusEffectType.Freeze, null, null, false),
-            'H' => (0, 0, false, false, false, 0, false, false, StatusEffectType.Shock, null, null, false),
-            'C' => (0, 0, false, false, false, 0, false, false, StatusEffectType.Corrosion, null, null, false),
-            'V' => (0, 0, false, false, false, 0, false, false, StatusEffectType.Virus, null, null, false),
-            'I' => (0, 0, false, false, false, 0, false, false, null, null, RoomDirection.Up, false),
-            'K' => (0, 0, false, false, false, 0, false, false, null, null, RoomDirection.Down, false),
-            'J' => (0, 0, false, false, false, 0, false, false, null, null, RoomDirection.Left, false),
-            'L' => (0, 0, false, false, false, 0, false, false, null, null, RoomDirection.Right, false),
-            'M' => (0, 0, false, false, false, 0, false, false, null, null, null, true),
-            ' ' => (0, 0, false, false, true, 0, false, false, null, null, null, false),
-            '1' => (0, 0, false, false, false, 1, false, false, null, null, null, false),
-            '2' => (0, 0, false, false, false, 2, false, false, null, null, null, false),
-            '3' => (0, 0, false, false, false, 3, false, false, null, null, null, false),
-            '4' => (0, 0, false, false, false, 4, false, false, null, null, null, false),
-            '5' => (0, 0, false, false, false, 5, false, false, null, null, null, false),
-            '6' => (0, 0, false, false, false, 6, false, false, null, null, null, false),
-            '7' => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Combat, null, false),
-            '8' => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Tech, null, false),
-            '9' => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Survival, null, false),
-            'Q' => (0, 0, true, false, false, 0, false, false, null, null, null, false),
-            _ => (0, 0, false, false, false, 0, false, false, null, null, null, false),
+            'W' => CreateCommand(directionY: -1),
+            'S' => CreateCommand(directionY: 1),
+            'A' => CreateCommand(directionX: -1),
+            'D' => CreateCommand(directionX: 1),
+            'T' => CreateCommand(shouldDamagePlayer: true),
+            'G' => CreateCommand(shouldPickUpItem: true),
+            'E' => CreateCommand(shouldEquipItem: true),
+            'B' => CreateCommand(statusEffectType: StatusEffectType.Burn),
+            'F' => CreateCommand(statusEffectType: StatusEffectType.Freeze),
+            'H' => CreateCommand(statusEffectType: StatusEffectType.Shock),
+            'C' => CreateCommand(statusEffectType: StatusEffectType.Corrosion),
+            'V' => CreateCommand(statusEffectType: StatusEffectType.Virus),
+            'I' => CreateCommand(roomDirection: RoomDirection.Up),
+            'K' => CreateCommand(roomDirection: RoomDirection.Down),
+            'J' => CreateCommand(roomDirection: RoomDirection.Left),
+            'L' => CreateCommand(roomDirection: RoomDirection.Right),
+            'M' => CreateCommand(shouldToggleMiniMap: true),
+            'P' => CreateCommand(shouldSave: true),
+            'O' => CreateCommand(shouldLoad: true),
+            ' ' => CreateCommand(shouldFireBullet: true),
+            '1' => CreateCommand(weaponNumber: 1),
+            '2' => CreateCommand(weaponNumber: 2),
+            '3' => CreateCommand(weaponNumber: 3),
+            '4' => CreateCommand(weaponNumber: 4),
+            '5' => CreateCommand(weaponNumber: 5),
+            '6' => CreateCommand(weaponNumber: 6),
+            '7' => CreateCommand(skillTreeType: SkillTreeType.Combat),
+            '8' => CreateCommand(skillTreeType: SkillTreeType.Tech),
+            '9' => CreateCommand(skillTreeType: SkillTreeType.Survival),
+            'Q' => CreateCommand(shouldExit: true),
+            _ => CreateCommand(),
         };
+    }
+
+    private static (int DirectionX, int DirectionY, bool ShouldExit, bool ShouldDamagePlayer, bool ShouldFireBullet, int WeaponNumber, bool ShouldPickUpItem, bool ShouldEquipItem, StatusEffectType? StatusEffectType, SkillTreeType? SkillTreeType, RoomDirection? RoomDirection, bool ShouldToggleMiniMap, bool ShouldSave, bool ShouldLoad) CreateCommand(
+        int directionX = 0,
+        int directionY = 0,
+        bool shouldExit = false,
+        bool shouldDamagePlayer = false,
+        bool shouldFireBullet = false,
+        int weaponNumber = 0,
+        bool shouldPickUpItem = false,
+        bool shouldEquipItem = false,
+        StatusEffectType? statusEffectType = null,
+        SkillTreeType? skillTreeType = null,
+        RoomDirection? roomDirection = null,
+        bool shouldToggleMiniMap = false,
+        bool shouldSave = false,
+        bool shouldLoad = false)
+    {
+        return (directionX, directionY, shouldExit, shouldDamagePlayer, shouldFireBullet, weaponNumber, shouldPickUpItem, shouldEquipItem, statusEffectType, skillTreeType, roomDirection, shouldToggleMiniMap, shouldSave, shouldLoad);
     }
 }
