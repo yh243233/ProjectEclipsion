@@ -3,6 +3,7 @@ using ProjectEclipsion.Core.Gameplay.Enemies;
 using ProjectEclipsion.Core.Gameplay.Skills;
 using ProjectEclipsion.Core.Gameplay.StatusEffects;
 using ProjectEclipsion.Core.Gameplay.Weapons;
+using ProjectEclipsion.Core.Gameplay.World.Rooms;
 using Xunit;
 
 namespace ProjectEclipsion.Core.Tests;
@@ -526,5 +527,26 @@ public sealed class GameStateTests
         Assert.True(result);
         Assert.Equal(2, gameState.Player.SkillPoint);
         Assert.Contains(gameState.SurvivalSkillTree.UnlockedNodes, node => node.Name == "HP");
+    }
+
+    [Fact]
+    public void MoveRoom_GameState経由でRoom移動できる()
+    {
+        var gameState = new GameState();
+
+        var result = gameState.MoveRoom(RoomDirection.Right);
+
+        Assert.True(result);
+        Assert.Equal("Fortress Gate", gameState.GameMap.CurrentRoom.Name);
+    }
+
+    [Fact]
+    public void ToggleMiniMap_GameState経由でミニマップ表示フラグを切り替えられる()
+    {
+        var gameState = new GameState();
+
+        gameState.ToggleMiniMap();
+
+        Assert.True(gameState.GameMap.IsMiniMapVisible);
     }
 }

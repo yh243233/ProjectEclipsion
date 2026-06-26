@@ -5,6 +5,8 @@ using ProjectEclipsion.Core.Gameplay.Items;
 using ProjectEclipsion.Core.Gameplay.Skills;
 using ProjectEclipsion.Core.Gameplay.StatusEffects;
 using ProjectEclipsion.Core.Gameplay.Weapons;
+using ProjectEclipsion.Core.Gameplay.World.Maps;
+using ProjectEclipsion.Core.Gameplay.World.Rooms;
 
 namespace ProjectEclipsion.Core;
 
@@ -31,6 +33,7 @@ public sealed class GameState
         CombatSkillTree = CombatTree.Create();
         TechSkillTree = TechTree.Create();
         SurvivalSkillTree = SurvivalTree.Create();
+        GameMap = GameMap.CreatePhase2Default();
         Enemies = new List<Enemy>
         {
             new Enemy(x: 30, y: 10, maxHealth: 30, aiLevel: EnemyAiLevel.Basic),
@@ -65,6 +68,8 @@ public sealed class GameState
     public SkillTree TechSkillTree { get; }
 
     public SkillTree SurvivalSkillTree { get; }
+
+    public GameMap GameMap { get; }
 
     public void MovePlayer(int directionX, int directionY)
     {
@@ -131,6 +136,16 @@ public sealed class GameState
     public bool UnlockFirstSkill(SkillTreeType treeType)
     {
         return GetSkillTree(treeType).UnlockFirstAvailable(Player);
+    }
+
+    public bool MoveRoom(RoomDirection direction)
+    {
+        return GameMap.TryMove(direction);
+    }
+
+    public void ToggleMiniMap()
+    {
+        GameMap.ToggleMiniMap();
     }
 
     private void HandleBulletEnemyCollisions()

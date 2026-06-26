@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using ProjectEclipsion.Core.Gameplay.Skills;
 using ProjectEclipsion.Core.Gameplay.StatusEffects;
+using ProjectEclipsion.Core.Gameplay.World.Rooms;
 
 namespace ProjectEclipsion.App.Input;
 
@@ -9,7 +10,7 @@ public sealed class KeyboardInput
 {
     // ここの箇所はReadDirectionは戻り値の型ではなくメソッド名である。
     // int DirectionX, int DirectionY, bool ShouldExitの箇所のintなどは引数の型宣言ではなく返り値の型宣言である。
-    public (int DirectionX, int DirectionY, bool ShouldExit, bool ShouldDamagePlayer, bool ShouldFireBullet, int WeaponNumber, bool ShouldPickUpItem, bool ShouldEquipItem, StatusEffectType? StatusEffectType, SkillTreeType? SkillTreeType) ReadDirection()
+    public (int DirectionX, int DirectionY, bool ShouldExit, bool ShouldDamagePlayer, bool ShouldFireBullet, int WeaponNumber, bool ShouldPickUpItem, bool ShouldEquipItem, StatusEffectType? StatusEffectType, SkillTreeType? SkillTreeType, RoomDirection? RoomDirection, bool ShouldToggleMiniMap) ReadDirection()
     {
         // ブレークポイントでのデバッグがうまくいかないので調べる。
         // todo:Console.IsInputRedirectedはコンソールの入力がリダイレクトされているかどうかを示すプロパティで、trueの場合はリダイレクトされていることを意味する。
@@ -30,7 +31,7 @@ public sealed class KeyboardInput
             // input < 0 の場合は、入力が終わった／ないと判断して ShouldExit = true を返します。
             // そうでなければ、その文字を ToDirection に渡して移動方向や終了フラグを返します。
             return input < 0
-                ? (0, 0, true, false, false, 0, false, false, null, null)
+                ? (0, 0, true, false, false, 0, false, false, null, null, null, false)
             // ToDirectionは下の箇所で定義されているメソッドで、char型の引数を受け取り、移動方向と終了フラグを返すものです。
                 : ToDirection((char)input);
             // つまりまとめると、リダイレクトされた入力がある場合は、キーボードからの入力を待たずに、リダイレクトされた入力を処理してゲームを終了するか、移動方向を決定することになる。
@@ -85,41 +86,46 @@ public sealed class KeyboardInput
           // bool ShouldFireBullet
           // の内容になっている。
 
-            ConsoleKey.W => (0, -1, false, false, false, 0, false, false, null, null),
-            ConsoleKey.S => (0, 1, false, false, false, 0, false, false, null, null),
-            ConsoleKey.A => (-1, 0, false, false, false, 0, false, false, null, null),
-            ConsoleKey.D => (1, 0, false, false, false, 0, false, false, null, null),
-            ConsoleKey.T => (0, 0, false, true, false, 0, false, false, null, null),
-            ConsoleKey.G => (0, 0, false, false, false, 0, true, false, null, null),
-            ConsoleKey.E => (0, 0, false, false, false, 0, false, true, null, null),
-            ConsoleKey.B => (0, 0, false, false, false, 0, false, false, StatusEffectType.Burn, null),
-            ConsoleKey.F => (0, 0, false, false, false, 0, false, false, StatusEffectType.Freeze, null),
-            ConsoleKey.H => (0, 0, false, false, false, 0, false, false, StatusEffectType.Shock, null),
-            ConsoleKey.C => (0, 0, false, false, false, 0, false, false, StatusEffectType.Corrosion, null),
-            ConsoleKey.V => (0, 0, false, false, false, 0, false, false, StatusEffectType.Virus, null),
-            ConsoleKey.Spacebar => (0, 0, false, false, true, 0, false, false, null, null),
-            ConsoleKey.D1 => (0, 0, false, false, false, 1, false, false, null, null),
-            ConsoleKey.D2 => (0, 0, false, false, false, 2, false, false, null, null),
-            ConsoleKey.D3 => (0, 0, false, false, false, 3, false, false, null, null),
-            ConsoleKey.D4 => (0, 0, false, false, false, 4, false, false, null, null),
-            ConsoleKey.D5 => (0, 0, false, false, false, 5, false, false, null, null),
-            ConsoleKey.D6 => (0, 0, false, false, false, 6, false, false, null, null),
-            ConsoleKey.D7 => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Combat),
-            ConsoleKey.D8 => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Tech),
-            ConsoleKey.D9 => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Survival),
-            ConsoleKey.NumPad1 => (0, 0, false, false, false, 1, false, false, null, null),
-            ConsoleKey.NumPad2 => (0, 0, false, false, false, 2, false, false, null, null),
-            ConsoleKey.NumPad3 => (0, 0, false, false, false, 3, false, false, null, null),
-            ConsoleKey.NumPad4 => (0, 0, false, false, false, 4, false, false, null, null),
-            ConsoleKey.NumPad5 => (0, 0, false, false, false, 5, false, false, null, null),
-            ConsoleKey.NumPad6 => (0, 0, false, false, false, 6, false, false, null, null),
-            ConsoleKey.NumPad7 => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Combat),
-            ConsoleKey.NumPad8 => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Tech),
-            ConsoleKey.NumPad9 => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Survival),
-            ConsoleKey.Q => (0, 0, true, false, false, 0, false, false, null, null),
-            ConsoleKey.Escape => (0, 0, true, false, false, 0, false, false, null, null),
+            ConsoleKey.W => (0, -1, false, false, false, 0, false, false, null, null, null, false),
+            ConsoleKey.S => (0, 1, false, false, false, 0, false, false, null, null, null, false),
+            ConsoleKey.A => (-1, 0, false, false, false, 0, false, false, null, null, null, false),
+            ConsoleKey.D => (1, 0, false, false, false, 0, false, false, null, null, null, false),
+            ConsoleKey.T => (0, 0, false, true, false, 0, false, false, null, null, null, false),
+            ConsoleKey.G => (0, 0, false, false, false, 0, true, false, null, null, null, false),
+            ConsoleKey.E => (0, 0, false, false, false, 0, false, true, null, null, null, false),
+            ConsoleKey.B => (0, 0, false, false, false, 0, false, false, StatusEffectType.Burn, null, null, false),
+            ConsoleKey.F => (0, 0, false, false, false, 0, false, false, StatusEffectType.Freeze, null, null, false),
+            ConsoleKey.H => (0, 0, false, false, false, 0, false, false, StatusEffectType.Shock, null, null, false),
+            ConsoleKey.C => (0, 0, false, false, false, 0, false, false, StatusEffectType.Corrosion, null, null, false),
+            ConsoleKey.V => (0, 0, false, false, false, 0, false, false, StatusEffectType.Virus, null, null, false),
+            ConsoleKey.I => (0, 0, false, false, false, 0, false, false, null, null, RoomDirection.Up, false),
+            ConsoleKey.K => (0, 0, false, false, false, 0, false, false, null, null, RoomDirection.Down, false),
+            ConsoleKey.J => (0, 0, false, false, false, 0, false, false, null, null, RoomDirection.Left, false),
+            ConsoleKey.L => (0, 0, false, false, false, 0, false, false, null, null, RoomDirection.Right, false),
+            ConsoleKey.M => (0, 0, false, false, false, 0, false, false, null, null, null, true),
+            ConsoleKey.Spacebar => (0, 0, false, false, true, 0, false, false, null, null, null, false),
+            ConsoleKey.D1 => (0, 0, false, false, false, 1, false, false, null, null, null, false),
+            ConsoleKey.D2 => (0, 0, false, false, false, 2, false, false, null, null, null, false),
+            ConsoleKey.D3 => (0, 0, false, false, false, 3, false, false, null, null, null, false),
+            ConsoleKey.D4 => (0, 0, false, false, false, 4, false, false, null, null, null, false),
+            ConsoleKey.D5 => (0, 0, false, false, false, 5, false, false, null, null, null, false),
+            ConsoleKey.D6 => (0, 0, false, false, false, 6, false, false, null, null, null, false),
+            ConsoleKey.D7 => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Combat, null, false),
+            ConsoleKey.D8 => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Tech, null, false),
+            ConsoleKey.D9 => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Survival, null, false),
+            ConsoleKey.NumPad1 => (0, 0, false, false, false, 1, false, false, null, null, null, false),
+            ConsoleKey.NumPad2 => (0, 0, false, false, false, 2, false, false, null, null, null, false),
+            ConsoleKey.NumPad3 => (0, 0, false, false, false, 3, false, false, null, null, null, false),
+            ConsoleKey.NumPad4 => (0, 0, false, false, false, 4, false, false, null, null, null, false),
+            ConsoleKey.NumPad5 => (0, 0, false, false, false, 5, false, false, null, null, null, false),
+            ConsoleKey.NumPad6 => (0, 0, false, false, false, 6, false, false, null, null, null, false),
+            ConsoleKey.NumPad7 => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Combat, null, false),
+            ConsoleKey.NumPad8 => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Tech, null, false),
+            ConsoleKey.NumPad9 => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Survival, null, false),
+            ConsoleKey.Q => (0, 0, true, false, false, 0, false, false, null, null, null, false),
+            ConsoleKey.Escape => (0, 0, true, false, false, 0, false, false, null, null, null, false),
             // ここはそれ以外のキーが押された場合のデフォルトの動作を定義している。今回は移動なし、終了なしの状態を返す。
-            _ => (0, 0, false, false, false, 0, false, false, null, null),
+            _ => (0, 0, false, false, false, 0, false, false, null, null, null, false),
         };
     }
 
@@ -127,34 +133,39 @@ public sealed class KeyboardInput
     // using System;
     // todo:pace ProjectEclipsion.App.Input;の二つしかネームスペース宣言をしていないのになぜリターン時に
     // char.ToUpperInvariantが使えているのかわからない。
-    private static (int DirectionX, int DirectionY, bool ShouldExit, bool ShouldDamagePlayer, bool ShouldFireBullet, int WeaponNumber, bool ShouldPickUpItem, bool ShouldEquipItem, StatusEffectType? StatusEffectType, SkillTreeType? SkillTreeType) ToDirection(char input)
+    private static (int DirectionX, int DirectionY, bool ShouldExit, bool ShouldDamagePlayer, bool ShouldFireBullet, int WeaponNumber, bool ShouldPickUpItem, bool ShouldEquipItem, StatusEffectType? StatusEffectType, SkillTreeType? SkillTreeType, RoomDirection? RoomDirection, bool ShouldToggleMiniMap) ToDirection(char input)
     {
         return char.ToUpperInvariant(input) switch
         {
-            'W' => (0, -1, false, false, false, 0, false, false, null, null),
-            'S' => (0, 1, false, false, false, 0, false, false, null, null),
-            'A' => (-1, 0, false, false, false, 0, false, false, null, null),
-            'D' => (1, 0, false, false, false, 0, false, false, null, null),
-            'T' => (0, 0, false, true, false, 0, false, false, null, null),
-            'G' => (0, 0, false, false, false, 0, true, false, null, null),
-            'E' => (0, 0, false, false, false, 0, false, true, null, null),
-            'B' => (0, 0, false, false, false, 0, false, false, StatusEffectType.Burn, null),
-            'F' => (0, 0, false, false, false, 0, false, false, StatusEffectType.Freeze, null),
-            'H' => (0, 0, false, false, false, 0, false, false, StatusEffectType.Shock, null),
-            'C' => (0, 0, false, false, false, 0, false, false, StatusEffectType.Corrosion, null),
-            'V' => (0, 0, false, false, false, 0, false, false, StatusEffectType.Virus, null),
-            ' ' => (0, 0, false, false, true, 0, false, false, null, null),
-            '1' => (0, 0, false, false, false, 1, false, false, null, null),
-            '2' => (0, 0, false, false, false, 2, false, false, null, null),
-            '3' => (0, 0, false, false, false, 3, false, false, null, null),
-            '4' => (0, 0, false, false, false, 4, false, false, null, null),
-            '5' => (0, 0, false, false, false, 5, false, false, null, null),
-            '6' => (0, 0, false, false, false, 6, false, false, null, null),
-            '7' => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Combat),
-            '8' => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Tech),
-            '9' => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Survival),
-            'Q' => (0, 0, true, false, false, 0, false, false, null, null),
-            _ => (0, 0, false, false, false, 0, false, false, null, null),
+            'W' => (0, -1, false, false, false, 0, false, false, null, null, null, false),
+            'S' => (0, 1, false, false, false, 0, false, false, null, null, null, false),
+            'A' => (-1, 0, false, false, false, 0, false, false, null, null, null, false),
+            'D' => (1, 0, false, false, false, 0, false, false, null, null, null, false),
+            'T' => (0, 0, false, true, false, 0, false, false, null, null, null, false),
+            'G' => (0, 0, false, false, false, 0, true, false, null, null, null, false),
+            'E' => (0, 0, false, false, false, 0, false, true, null, null, null, false),
+            'B' => (0, 0, false, false, false, 0, false, false, StatusEffectType.Burn, null, null, false),
+            'F' => (0, 0, false, false, false, 0, false, false, StatusEffectType.Freeze, null, null, false),
+            'H' => (0, 0, false, false, false, 0, false, false, StatusEffectType.Shock, null, null, false),
+            'C' => (0, 0, false, false, false, 0, false, false, StatusEffectType.Corrosion, null, null, false),
+            'V' => (0, 0, false, false, false, 0, false, false, StatusEffectType.Virus, null, null, false),
+            'I' => (0, 0, false, false, false, 0, false, false, null, null, RoomDirection.Up, false),
+            'K' => (0, 0, false, false, false, 0, false, false, null, null, RoomDirection.Down, false),
+            'J' => (0, 0, false, false, false, 0, false, false, null, null, RoomDirection.Left, false),
+            'L' => (0, 0, false, false, false, 0, false, false, null, null, RoomDirection.Right, false),
+            'M' => (0, 0, false, false, false, 0, false, false, null, null, null, true),
+            ' ' => (0, 0, false, false, true, 0, false, false, null, null, null, false),
+            '1' => (0, 0, false, false, false, 1, false, false, null, null, null, false),
+            '2' => (0, 0, false, false, false, 2, false, false, null, null, null, false),
+            '3' => (0, 0, false, false, false, 3, false, false, null, null, null, false),
+            '4' => (0, 0, false, false, false, 4, false, false, null, null, null, false),
+            '5' => (0, 0, false, false, false, 5, false, false, null, null, null, false),
+            '6' => (0, 0, false, false, false, 6, false, false, null, null, null, false),
+            '7' => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Combat, null, false),
+            '8' => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Tech, null, false),
+            '9' => (0, 0, false, false, false, 0, false, false, null, SkillTreeType.Survival, null, false),
+            'Q' => (0, 0, true, false, false, 0, false, false, null, null, null, false),
+            _ => (0, 0, false, false, false, 0, false, false, null, null, null, false),
         };
     }
 }
